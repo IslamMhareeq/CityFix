@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - CityFix</title>
+  <meta name="description" content="Manage your CityFix profile and account settings.">
+
+  <!-- Favicon -->
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
+
+  <style>
+    .profile-hero {
+      background: linear-gradient(135deg, var(--primary-500), var(--emerald-500));
+      color: white;
+      padding: var(--space-16) 0 var(--space-20);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1.5" fill="white" opacity="0.05"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      box-shadow: var(--shadow-2xl);
+      margin: 0 auto var(--space-6);
+      background: linear-gradient(135deg, var(--primary-300), var(--emerald-300));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-4xl);
+      font-weight: 700;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-info {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .profile-name {
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      margin-bottom: var(--space-2);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-email {
+      font-size: var(--text-lg);
+      opacity: 0.9;
+      margin-bottom: var(--space-6);
+    }
+
+    .profile-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-8);
+      flex-wrap: wrap;
+    }
+
+    .profile-stat {
+      text-align: center;
+    }
+
+    .profile-stat-number {
+      display: block;
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: var(--space-2);
+    }
+
+    .profile-stat-label {
+      font-size: var(--text-sm);
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .profile-content {
+      margin-top: calc(-1 * var(--space-12));
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-nav {
+      background: white;
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-xl);
+      margin-bottom: var(--space-8);
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+    }
+
+    .profile-nav-list {
+      display: flex;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .profile-nav-item {
+      flex: 1;
+    }
+
+    .profile-nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-5) var(--space-4);
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: var(--text-sm);
+      transition: var(--transition-all);
+      border-bottom: 3px solid transparent;
+    }
+
+    .profile-nav-link:hover,
+    .profile-nav-link.active {
+      color: var(--primary-600);
+      background: var(--primary-50);
+      border-bottom-color: var(--primary-500);
+      text-decoration: none;
+    }
+
+    .profile-section {
+      display: none;
+    }
+
+    .profile-section.active {
+      display: block;
+    }
+
+    .settings-grid {
+      display: grid;
+      gap: var(--space-8);
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+
+    .settings-card {
+      background: white;
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      transition: var(--transition-all);
+    }
+
+    .settings-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-2xl);
+    }
+
+    .settings-card-header {
+      padding: var(--space-6) var(--space-6) var(--space-4);
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+
+    .settings-card-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .settings-card-title i {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-100);
+      color: var(--primary-600);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+    }
+
+    .settings-card-description {
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+    }
+
+    .settings-card-body {
+      padding: var(--space-6);
+    }
+
+    .form-row {
+      display: grid;
+      gap: var(--space-4);
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      margin-bottom: var(--space-5);
+    }
+
+    .danger-zone {
+      background: var(--red-50);
+      border: 2px solid var(--red-200);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      margin-top: var(--space-8);
+    }
+
+    .danger-zone-title {
+      color: var(--red-800);
+      font-weight: 700;
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-2);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .danger-zone-description {
+      color: var(--red-700);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-4);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--red-500), var(--red-600));
+      color: white;
+      border: none;
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-lg);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-all);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, var(--red-600), var(--red-700));
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      border-radius: var(--radius-lg);
+      transition: var(--transition-colors);
+    }
+
+    .activity-item:hover {
+      background: var(--gray-50);
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      flex-shrink: 0;
+    }
+
+    .activity-icon-success {
+      background: var(--emerald-100);
+      color: var(--emerald-600);
+    }
+
+    .activity-icon-warning {
+      background: var(--orange-100);
+      color: var(--orange-600);
+    }
+
+    .activity-icon-info {
+      background: var(--blue-100);
+      color: var(--blue-600);
+    }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+
+    .activity-time {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: var(--text-6xl);
+      margin-bottom: var(--space-4);
+      opacity: 0.3;
+    }
+
+    @media (max-width: 768px) {
+      .profile-hero {
+        padding: var(--space-12) 0 var(--space-16);
+      }
+
+      .profile-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: var(--text-2xl);
+      }
+
+      .profile-name {
+        font-size: var(--text-2xl);
+      }
+
+      .profile-stats {
+        gap: var(--space-6);
+      }
+
+      .profile-nav-list {
+        flex-direction: column;
+      }
+
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="{{ url_for('main.home') }}" class="navbar-brand">
+          <img src="{{ url_for('static', filename='images/cityfixlogo.png') }}" alt="CityFix Logo" width="32"
+            height="32" class="rounded-lg">
+          <span>CityFix</span>
+        </a>
+
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a href="{{ url_for('auth.dashboard') }}" class="nav-link">
+              <i class="bi bi-speedometer2" aria-hidden="true"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('reports.my_reports') }}" class="nav-link">
+              <i class="bi bi-journal-text" aria-hidden="true"></i>
+              <span>My Reports</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('reports.report_issue') }}" class="nav-link">
+              <i class="bi bi-plus-circle" aria-hidden="true"></i>
+              <span>Report Issue</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-primary">
+              <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+              <span>Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Hero -->
+  <section class="profile-hero">
+    <div class="container">
+      <div class="profile-info">
+        <div class="profile-avatar">
+          {{ user.name[0].upper() if user.name else 'U' }}
+        </div>
+        <h1 class="profile-name">{{ user.name or 'User' }}</h1>
+        <p class="profile-email">{{ user.email }}</p>
+
+       
+      </div>
+    </div>
+  </section>
+
+  <!-- Profile Content -->
+  <main class="profile-content">
+    <div class="container">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }} mb-6">
+        <i class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'info-circle' if category == 'info' else 'x-circle' }}"
+          aria-hidden="true"></i>
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <!-- Profile Navigation -->
+      <nav class="profile-nav">
+        <ul class="profile-nav-list">
+          <li class="profile-nav-item">
+            <a href="#" class="profile-nav-link active" onclick="showSection('general')">
+              <i class="bi bi-person-gear" aria-hidden="true"></i>
+              <span>General</span>
+            </a>
+          </li>
+          <li class="profile-nav-item">
+            <a href="#" class="profile-nav-link" onclick="showSection('security')">
+              <i class="bi bi-shield-check" aria-hidden="true"></i>
+              <span>Security</span>
+            </a>
+          </li>
+          <li class="profile-nav-item">
+            <a href="#" class="profile-nav-link" onclick="showSection('activity')">
+              <i class="bi bi-clock-history" aria-hidden="true"></i>
+              <span>Activity</span>
+            </a>
+          </li>
+          <li class="profile-nav-item">
+            <a href="#" class="profile-nav-link" onclick="showSection('preferences')">
+              <i class="bi bi-sliders" aria-hidden="true"></i>
+              <span>Preferences</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- General Settings -->
+      <section id="general" class="profile-section active">
+        <div class="settings-grid">
+          <!-- Profile Information -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h2 class="settings-card-title">
+                <i class="bi bi-person-circle" aria-hidden="true"></i>
+                Profile Information
+              </h2>
+              <p class="settings-card-description">
+                Update your personal information and contact details.
+              </p>
+            </div>
+            <div class="settings-card-body">
+              <form action="{{ url_for('main.update_profile') }}" method="POST">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control" value="{{ user.name or '' }}"
+                      placeholder="Enter your full name">
+                  </div>
+                  <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" class="form-control" value="{{ user.email }}" disabled
+                      title="Email cannot be changed">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="role" class="form-label">Account Type</label>
+                  <input type="text" id="role" class="form-control" value="{{ user.role|title }}" disabled
+                    title="Role cannot be changed">
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-circle" aria-hidden="true"></i>
+                  Save Changes
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Account Status -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h2 class="settings-card-title">
+                <i class="bi bi-shield-check" aria-hidden="true"></i>
+                Account Status
+              </h2>
+              <p class="settings-card-description">
+                Your account information and verification status.
+              </p>
+            </div>
+            <div class="settings-card-body">
+              <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                  <div class="flex items-center gap-3">
+                    <i class="bi bi-check-circle-fill text-emerald-600" aria-hidden="true"></i>
+                    <div>
+                      <div class="font-semibold text-emerald-800">Email Verified</div>
+                      <div class="text-sm text-emerald-600">Your email is verified and secure</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <div class="flex items-center gap-3">
+                    <i class="bi bi-person-check-fill text-blue-600" aria-hidden="true"></i>
+                    <div>
+                      <div class="font-semibold text-blue-800">Account Active</div>
+                      <div class="text-sm text-blue-600">Member since {{ user.created_at or 'Recently' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security Settings -->
+      <section id="security" class="profile-section">
+        <div class="settings-grid">
+          <!-- Change Password -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h2 class="settings-card-title">
+                <i class="bi bi-key" aria-hidden="true"></i>
+                Change Password
+              </h2>
+              <p class="settings-card-description">
+                Keep your account secure with a strong password.
+              </p>
+            </div>
+            <div class="settings-card-body">
+              <form action="{{ url_for('main.update_profile') }}" method="POST">
+                <div class="form-group">
+                  <label for="current-password" class="form-label">Current Password</label>
+                  <input type="password" id="current-password" name="current_password" class="form-control"
+                    placeholder="Enter your current password">
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="new-password" class="form-label">New Password</label>
+                    <input type="password" id="new-password" name="password" class="form-control"
+                      placeholder="Enter new password">
+                  </div>
+                  <div class="form-group">
+                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm_password" class="form-control"
+                      placeholder="Confirm new password">
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-lock" aria-hidden="true"></i>
+                  Update Password
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Security Tips -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h2 class="settings-card-title">
+                <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+                Security Tips
+              </h2>
+              <p class="settings-card-description">
+                Best practices to keep your account secure.
+              </p>
+            </div>
+            <div class="settings-card-body">
+              <div class="space-y-3">
+                <div class="flex items-start gap-3">
+                  <i class="bi bi-check-circle text-emerald-500 mt-1" aria-hidden="true"></i>
+                  <div class="text-sm">
+                    <strong>Use a strong password</strong> with at least 8 characters, including letters, numbers, and
+                    symbols.
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="bi bi-check-circle text-emerald-500 mt-1" aria-hidden="true"></i>
+                  <div class="text-sm">
+                    <strong>Don't share your password</strong> with anyone or use the same password on multiple sites.
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="bi bi-check-circle text-emerald-500 mt-1" aria-hidden="true"></i>
+                  <div class="text-sm">
+                    <strong>Log out from public devices</strong> and always check for secure connections (HTTPS).
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity History -->
+      <section id="activity" class="profile-section">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">
+              <i class="bi bi-activity" aria-hidden="true"></i>
+              Recent Activity
+            </h2>
+            <p class="settings-card-description">
+              Your recent actions and account activity.
+            </p>
+          </div>
+          <div class="settings-card-body">
+            <div class="space-y-1">
+              <div class="activity-item">
+                <div class="activity-icon activity-icon-success">
+                  <i class="bi bi-plus-circle" aria-hidden="true"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-title">Reported a pothole on Main Street</div>
+                  <div class="activity-time">2 hours ago</div>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon activity-icon-info">
+                  <i class="bi bi-pencil" aria-hidden="true"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-title">Updated profile information</div>
+                  <div class="activity-time">1 day ago</div>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon activity-icon-warning">
+                  <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-title">Report status changed to "In Progress"</div>
+                  <div class="activity-time">3 days ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Preferences -->
+      <section id="preferences" class="profile-section">
+        <div class="settings-grid">
+          <!-- Notification Settings -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h2 class="settings-card-title">
+                <i class="bi bi-bell" aria-hidden="true"></i>
+                Notifications
+              </h2>
+              <p class="settings-card-description">
+                Choose how you want to be notified about updates.
+              </p>
+            </div>
+            <div class="settings-card-body">
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold">Email Notifications</div>
+                    <div class="text-sm text-secondary">Receive updates via email</div>
+                  </div>
+                  <input type="checkbox" class="form-check-input" checked>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold">Report Status Updates</div>
+                    <div class="text-sm text-secondary">Get notified when report status changes</div>
+                  </div>
+                  <input type="checkbox" class="form-check-input" checked>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold">Weekly Summary</div>
+                    <div class="text-sm text-secondary">Receive weekly activity summary</div>
+                  </div>
+                  <input type="checkbox" class="form-check-input">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privacy Settings -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h2 class="settings-card-title">
+                <i class="bi bi-eye-slash" aria-hidden="true"></i>
+                Privacy
+              </h2>
+              <p class="settings-card-description">
+                Control your privacy and data sharing preferences.
+              </p>
+            </div>
+            <div class="settings-card-body">
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold">Public Profile</div>
+                    <div class="text-sm text-secondary">Make your profile visible to others</div>
+                  </div>
+                  <input type="checkbox" class="form-check-input">
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold">Show Activity</div>
+                    <div class="text-sm text-secondary">Display your recent reports publicly</div>
+                  </div>
+                  <input type="checkbox" class="form-check-input">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Danger Zone -->
+      <div class="danger-zone">
+        <h3 class="danger-zone-title">
+          <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+          Danger Zone
+        </h3>
+        <p class="danger-zone-description">
+          These actions are permanent and cannot be undone. Please proceed with caution.
+        </p>
+        <form method="POST" action="{{ url_for('main.delete_my_account') }}"
+          onsubmit="return confirm('Are you absolutely sure? This action cannot be undone and will permanently delete your account and all associated data.');">
+          <button type="submit" class="btn-danger">
+            <i class="bi bi-trash" aria-hidden="true"></i>
+            Delete Account
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Tab switching functionality
+    function showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.profile-section').forEach(section => {
+        section.classList.remove('active');
+      });
+
+      // Remove active class from all nav links
+      document.querySelectorAll('.profile-nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+
+      // Show selected section
+      document.getElementById(sectionId).classList.add('active');
+
+      // Add active class to clicked nav link
+      event.target.closest('.profile-nav-link').classList.add('active');
+    }
+
+    // Auto-dismiss flash messages
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+          alert.style.transition = 'opacity 0.5s ease';
+          alert.style.opacity = '0';
+          setTimeout(() => alert.remove(), 500);
+        });
+      }, 5000);
+    });
+
+    // Password confirmation validation
+    const newPassword = document.getElementById('new-password');
+    const confirmPassword = document.getElementById('confirm-password');
+
+    if (newPassword && confirmPassword) {
+      confirmPassword.addEventListener('input', function () {
+        if (this.value !== newPassword.value) {
+          this.setCustomValidity('Passwords do not match');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+    }
+
+    // Form validation
+    document.querySelectorAll('.form-control').forEach(input => {
+      input.addEventListener('blur', function () {
+        if (this.checkValidity()) {
+          this.classList.add('is-valid');
+          this.classList.remove('is-invalid');
+        } else {
+          this.classList.add('is-invalid');
+          this.classList.remove('is-valid');
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
