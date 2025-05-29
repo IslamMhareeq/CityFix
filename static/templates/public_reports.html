@@ -5,334 +5,1057 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>CityFix – All Reports</title>
+  <meta name="description" content="Browse all public infrastructure reports in your community on CityFix.">
 
-  <!-- Bootstrap & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- Favicon -->
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
+
   <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
-
-    .hidden-select {
-      position: absolute;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      cursor: pointer;
-    }
-
-    .d-flex-full {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .main-content {
-      flex: 1;
-      display: flex;
+    .reports-hero {
+      background: linear-gradient(135deg, var(--primary-500), var(--emerald-500));
+      color: white;
+      padding: var(--space-16) 0 var(--space-20);
+      position: relative;
       overflow: hidden;
     }
 
-    .navbar {
-      background-color: #fff !important;
+    .reports-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="reports-pattern" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="3" fill="white" opacity="0.1"/><circle cx="5" cy="5" r="1" fill="white" opacity="0.05"/><circle cx="35" cy="35" r="2" fill="white" opacity="0.08"/></pattern></defs><rect width="100" height="100" fill="url(%23reports-pattern)"/></svg>');
+      opacity: 0.3;
     }
 
-    .navbar-brand {
-      color: #0ef !important;
-      font-weight: bold;
+    .reports-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
     }
 
-    .navbar .nav-link {
-      color: #000 !important;
+    .reports-title {
+      font-size: var(--text-5xl);
+      font-weight: 800;
+      margin-bottom: var(--space-4);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .navbar .nav-link:hover {
-      color: #0ef !important;
+    .reports-subtitle {
+      font-size: var(--text-xl);
+      opacity: 0.9;
+      margin-bottom: var(--space-8);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .reports-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-8);
+      flex-wrap: wrap;
+    }
+
+    .reports-stat {
+      text-align: center;
+    }
+
+    .reports-stat-number {
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      display: block;
+      margin-bottom: var(--space-2);
+    }
+
+    .reports-stat-label {
+      font-size: var(--text-sm);
+      opacity: 0.9;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .main-content {
+      margin-top: calc(-1 * var(--space-12));
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: var(--space-8);
+      height: calc(100vh - 200px);
+      min-height: 600px;
     }
 
     .sidebar {
-      width: 360px;
-      background: #fff;
-      border-right: 1px solid #ddd;
+      background: white;
+      border-radius: var(--radius-3xl);
+      box-shadow: var(--shadow-2xl);
+      border: 1px solid var(--gray-200);
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .filter-section {
-      padding: 1rem;
+      padding: var(--space-8) var(--space-6) var(--space-6);
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-50);
     }
 
-    .filter-item {
-      position: relative;
+    .filter-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-6);
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: .75rem 0;
-      border-bottom: 1px solid #eee;
+      gap: var(--space-3);
     }
 
-    .filter-item .label {
+    .filter-title i {
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
-      font-size: .95rem;
-      color: #333;
+      justify-content: center;
+      background: var(--primary-100);
+      color: var(--primary-600);
+      border-radius: var(--radius-xl);
+      font-size: var(--text-lg);
     }
 
-    .filter-item .label i {
-      font-size: 1.2rem;
-      margin-right: .5rem;
-      color: #555;
+    .filter-group {
+      margin-bottom: var(--space-6);
     }
 
-    .filter-item .value {
+    .filter-label {
+      font-size: var(--text-sm);
       font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
     }
 
-    .filter-item .chevron {
-      color: #888;
+    .filter-control {
+      position: relative;
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: var(--space-3) var(--space-4) var(--space-3) var(--space-10);
+      border: 2px solid var(--gray-300);
+      border-radius: var(--radius-xl);
+      font-size: var(--text-sm);
+      background: white;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: var(--transition-all);
+      appearance: none;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-100);
+    }
+
+    .filter-icon {
+      position: absolute;
+      left: var(--space-3);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .filter-chevron {
+      position: absolute;
+      right: var(--space-3);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
     }
 
     .apply-btn {
-      margin: 1rem;
-      width: calc(100% - 2rem);
+      width: 100%;
+      padding: var(--space-4) var(--space-6);
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+      color: white;
+      border: none;
+      border-radius: var(--radius-xl);
+      font-weight: 600;
+      font-size: var(--text-base);
+      cursor: pointer;
+      transition: var(--transition-all);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
     }
 
-    #reportList {
+    .apply-btn:hover {
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .reports-list {
       flex: 1;
       overflow-y: auto;
-      background: #f9f9f9;
-      padding: 1rem;
+      padding: var(--space-6);
+      background: var(--gray-50);
+    }
+
+    .reports-count {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
+      font-weight: 600;
+      text-align: center;
     }
 
     .report-card {
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: .5rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-2xl);
+      margin-bottom: var(--space-4);
+      box-shadow: var(--shadow-md);
       cursor: pointer;
+      transition: var(--transition-all);
+      overflow: hidden;
+      position: relative;
     }
 
-    .report-card .card-body {
+    .report-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary-500);
+      transition: var(--transition-all);
+    }
+
+    .report-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+      border-color: var(--primary-200);
+    }
+
+    .report-card:hover::before {
+      width: 6px;
+    }
+
+    .report-card.status-resolved::before {
+      background: var(--emerald-500);
+    }
+
+    .report-card.status-in-progress::before {
+      background: var(--orange-500);
+    }
+
+    .report-card.status-pending::before {
+      background: var(--gray-400);
+    }
+
+    .report-card-body {
+      padding: var(--space-5);
+    }
+
+    .report-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .report-image {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+      flex-shrink: 0;
+      border: 2px solid var(--gray-200);
+    }
+
+    .report-icon {
+      width: 80px;
+      height: 60px;
+      background: var(--gray-100);
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
-      padding: 1rem;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: var(--text-2xl);
+      flex-shrink: 0;
+      border: 2px solid var(--gray-200);
     }
 
-    .report-thumb {
-      width: 60px;
-      height: 40px;
-      object-fit: cover;
-      border-radius: .25rem;
-      margin-right: 1rem;
-    }
-
-    .report-card i.category-icon {
-      font-size: 1.5rem;
-      margin-right: 1rem;
-      color: #28a745;
-    }
-
-    .report-info {
+    .report-content {
       flex: 1;
+      min-width: 0;
     }
 
-    .report-info .title {
+    .report-title {
       font-weight: 600;
-      margin-bottom: .25rem;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+      font-size: var(--text-base);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .report-info .time {
-      font-size: .8rem;
-      color: #666;
+    .report-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
     }
 
-    .badge-status {
+    .report-time {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
       text-transform: uppercase;
-      font-size: .75rem;
+      letter-spacing: 0.05em;
     }
 
-    #publicMap {
-      flex: 1;
+    .status-resolved {
+      background: var(--emerald-100);
+      color: var(--emerald-800);
+    }
+
+    .status-in-progress {
+      background: var(--orange-100);
+      color: var(--orange-800);
+    }
+
+    .status-approved {
+      background: var(--blue-100);
+      color: var(--blue-800);
+    }
+
+    .status-pending {
+      background: var(--gray-100);
+      color: var(--gray-800);
+    }
+
+    .status-rejected {
+      background: var(--red-100);
+      color: var(--red-800);
+    }
+
+    .map-section {
+      background: white;
+      border-radius: var(--radius-3xl);
+      box-shadow: var(--shadow-2xl);
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .map-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+
+    .map-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+
+    .map-title i {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--emerald-100);
+      color: var(--emerald-600);
+      border-radius: var(--radius-xl);
+      font-size: var(--text-lg);
+    }
+
+    .map-subtitle {
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+    }
+
+    .map-container {
+      height: calc(100% - 80px);
+      position: relative;
+    }
+
+    .map-overlay {
+      position: absolute;
+      top: var(--space-4);
+      left: var(--space-4);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      z-index: 1000;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .loading-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-12);
+      color: var(--text-muted);
+    }
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--gray-300);
+      border-top: 3px solid var(--primary-500);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: var(--space-3);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: var(--text-5xl);
+      margin-bottom: var(--space-4);
+      opacity: 0.3;
+    }
+
+    .empty-state h3 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+      color: var(--text-secondary);
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 1200px) {
+      .main-content {
+        grid-template-columns: 350px 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .reports-hero {
+        padding: var(--space-12) 0 var(--space-16);
+      }
+
+      .reports-title {
+        font-size: var(--text-3xl);
+      }
+
+      .reports-subtitle {
+        font-size: var(--text-base);
+      }
+
+      .reports-stats {
+        gap: var(--space-6);
+      }
+
+      .main-content {
+        grid-template-columns: 1fr;
+        height: auto;
+        margin: calc(-1 * var(--space-8)) var(--space-4) var(--space-12);
+      }
+
+      .sidebar {
+        order: 1;
+        height: auto;
+      }
+
+      .map-section {
+        order: 2;
+        height: 400px;
+      }
+
+      .reports-list {
+        max-height: 500px;
+      }
+
+      .filter-section {
+        padding: var(--space-6);
+      }
+
+      .report-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .report-image,
+      .report-icon {
+        width: 100%;
+        height: 120px;
+      }
+    }
+
+    /* Custom Leaflet Popup Styles */
+    .leaflet-popup-content-wrapper {
+      border-radius: var(--radius-xl) !important;
+      box-shadow: var(--shadow-xl) !important;
+      border: 1px solid var(--gray-200) !important;
+    }
+
+    .leaflet-popup-content {
+      margin: var(--space-4) !important;
+      font-family: 'Inter', sans-serif !important;
+    }
+
+    .popup-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+      font-size: var(--text-sm);
+    }
+
+    .popup-status {
+      margin-bottom: var(--space-3);
+    }
+
+    .popup-description {
+      color: var(--text-secondary);
+      font-size: var(--text-xs);
+      margin-bottom: var(--space-3);
+      line-height: 1.4;
+    }
+
+    .popup-button {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      background: var(--primary-500);
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      transition: var(--transition-all);
+    }
+
+    .popup-button:hover {
+      background: var(--primary-600);
+      text-decoration: none;
+      color: white;
     }
   </style>
 </head>
 
-<body class="d-flex-full">
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('main.home') }}">
-        <img src="{{ url_for('static', filename='images/cityfixlogo.png') }}" alt="CityFix" width="30" height="30"
-          class="d-inline-block align-text-top">
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.dashboard') }}">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('reports.my_reports') }}">My Reports</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('reports.report_issue') }}">Report Issue</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a></li>
-        </ul>
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="{{ url_for('main.home') }}" class="navbar-brand">
+          <img src="{{ url_for('static', filename='images/cityfixlogo.png') }}" alt="CityFix Logo" width="32"
+            height="32" class="rounded-lg">
+          <span>CityFix</span>
+        </a>
+
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a href="{{ url_for('auth.dashboard') }}" class="nav-link">
+              <i class="bi bi-speedometer2" aria-hidden="true"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('reports.my_reports') }}" class="nav-link">
+              <i class="bi bi-journal-text" aria-hidden="true"></i>
+              <span>My Reports</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('reports.report_issue') }}" class="nav-link">
+              <i class="bi bi-plus-circle" aria-hidden="true"></i>
+              <span>Report Issue</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('main.profile') }}" class="nav-link">
+              <i class="bi bi-person-circle" aria-hidden="true"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-primary">
+              <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+              <span>Logout</span>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- pass URLs into JS -->
-  <script>
-    const STATIC_URL = "{{ url_for('static', filename='') }}";
-    const UPLOAD_URL = "{{ url_for('reports.serve_upload', file_id='') }}";
-  </script>
+  <!-- Reports Hero -->
+  <section class="reports-hero">
+    <div class="container">
+      <div class="reports-content">
+        <h1 class="reports-title">Community Reports</h1>
+        <p class="reports-subtitle">
+          Explore all infrastructure reports submitted by community members.
+          See what's happening in your neighborhood and track progress.
+        </p>
 
-  <!-- Main content -->
-  <div class="main-content">
-    <aside class="sidebar">
-      <div class="filter-section">
-        <div class="filter-item">
-          <span class="label"><i class="bi bi-exclamation-circle"></i>Report Status</span>
-          <span><span id="statusValue" class="value">Everything</span> <i
-              class="bi bi-chevron-right chevron"></i></span>
-          <select id="statusFilter" class="hidden-select">
-            <option value="">Everything</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="in progress">In Progress</option>
-            <option value="resolved">Resolved</option>
-          </select>
+        <div class="reports-stats">
+          <div class="reports-stat">
+            <span class="reports-stat-number" id="total-count">-</span>
+            <span class="reports-stat-label">Total Reports</span>
+          </div>
+          <div class="reports-stat">
+            <span class="reports-stat-number" id="resolved-count">-</span>
+            <span class="reports-stat-label">Resolved</span>
+          </div>
+          <div class="reports-stat">
+            <span class="reports-stat-number" id="progress-count">-</span>
+            <span class="reports-stat-label">In Progress</span>
+          </div>
         </div>
-        <div class="filter-item">
-          <span class="label"><i class="bi bi-folder"></i>Category</span>
-          <span><span id="categoryValue" class="value">Everything</span> <i
-              class="bi bi-chevron-right chevron"></i></span>
-          <select id="categoryFilter" class="hidden-select">
-            <option value="">Everything</option>
-            {% for cat in categories %}<option value="{{ cat }}">{{ cat }}</option>{% endfor %}
-          </select>
-        </div>
-        <div class="filter-item">
-          <span class="label"><i class="bi bi-filter"></i>Sort By</span>
-          <span><span id="sortValue" class="value">Newest</span> <i class="bi bi-chevron-right chevron"></i></span>
-          <select id="sortBy" class="hidden-select">
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-          </select>
-        </div>
-        <button class="btn btn-outline-dark apply-btn" onclick="applyFilters()">Apply filter</button>
       </div>
-      <div id="reportList"></div>
-    </aside>
+    </div>
+  </section>
 
-    <div id="publicMap"></div>
-  </div>
+  <!-- Main Content -->
+  <main class="container">
+    <div class="main-content">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="filter-section">
+          <h2 class="filter-title">
+            <i class="bi bi-funnel" aria-hidden="true"></i>
+            Filter Reports
+          </h2>
+          
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+              Report Status
+            </label>
+            <div class="filter-control">
+              <i class="bi bi-clock filter-icon" aria-hidden="true"></i>
+              <select id="statusFilter" class="filter-select">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="in progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <i class="bi bi-chevron-down filter-chevron" aria-hidden="true"></i>
+            </div>
+          </div>
 
-  <!-- libs -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="bi bi-folder" aria-hidden="true"></i>
+              Category
+            </label>
+            <div class="filter-control">
+              <i class="bi bi-tag filter-icon" aria-hidden="true"></i>
+              <select id="categoryFilter" class="filter-select">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}">{{ cat.replace('_', ' ').title() }}</option>
+                {% endfor %}
+              </select>
+              <i class="bi bi-chevron-down filter-chevron" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="bi bi-sort-down" aria-hidden="true"></i>
+              Sort By
+            </label>
+            <div class="filter-control">
+              <i class="bi bi-sort-down filter-icon" aria-hidden="true"></i>
+              <select id="sortBy" class="filter-select">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="status">By Status</option>
+              </select>
+              <i class="bi bi-chevron-down filter-chevron" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          <button class="apply-btn" onclick="applyFilters()">
+            <i class="bi bi-check-circle" aria-hidden="true"></i>
+            Apply Filters
+          </button>
+        </div>
+
+        <div class="reports-list">
+          <div class="reports-count" id="reports-count">Loading reports...</div>
+          <div id="reportList">
+            <div class="loading-state">
+              <div class="loading-spinner"></div>
+              Loading reports...
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Map Section -->
+      <section class="map-section">
+        <div class="map-header">
+          <h2 class="map-title">
+            <i class="bi bi-map" aria-hidden="true"></i>
+            Interactive Map
+          </h2>
+          <p class="map-subtitle">Click on markers to view report details</p>
+        </div>
+        <div class="map-container">
+          <div class="map-overlay">
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+            Click markers for details
+          </div>
+          <div id="publicMap" style="height: 100%; width: 100%;"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    (function () {
-      const statusFilter = document.getElementById('statusFilter'),
-        categoryFilter = document.getElementById('categoryFilter'),
-        sortBy = document.getElementById('sortBy'),
-        statusValue = document.getElementById('statusValue'),
-        categoryValue = document.getElementById('categoryValue'),
-        sortValue = document.getElementById('sortValue'),
-        reportList = document.getElementById('reportList');
-      let allReports = [];
+    // Global variables
+    const STATIC_URL = "{{ url_for('static', filename='') }}";
+    const UPLOAD_URL = "{{ url_for('reports.serve_upload', file_id='') }}";
+    
+    let map;
+    let allReports = [];
+    let filteredReports = [];
+    let currentMarkers = [];
 
-      // init map
-      const map = L.map('publicMap');
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+    // Initialize everything when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeMap();
+      loadReports();
+      initializeAnimations();
+    });
 
-      // fetch data
+    function initializeMap() {
+      // Create map centered on Jerusalem (default location)
+      map = L.map('publicMap').setView([31.7683, 35.2137], 10);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(map);
+
+      // Ensure map renders properly
+      setTimeout(() => map.invalidateSize(), 200);
+    }
+
+    function loadReports() {
       fetch('/api/issues')
-        .then(r => r.json())
-        .then(({ issues }) => {
-          allReports = issues.map(i => ({ ...i, timestamp: new Date(i.timestamp) }));
-          render();
+        .then(response => response.json())
+        .then(data => {
+          allReports = data.issues.map(issue => ({
+            ...issue,
+            timestamp: new Date(issue.timestamp)
+          }));
+          
+          filteredReports = [...allReports];
+          updateStats();
+          renderReports();
+          renderMapMarkers();
+        })
+        .catch(error => {
+          console.error('Error loading reports:', error);
+          document.getElementById('reportList').innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+              <h3>Error Loading Reports</h3>
+              <p>Unable to load reports. Please try again later.</p>
+            </div>
+          `;
         });
+    }
 
-      window.applyFilters = function () {
-        statusValue.textContent = statusFilter.options[statusFilter.selectedIndex].text;
-        categoryValue.textContent = categoryFilter.options[categoryFilter.selectedIndex].text;
-        sortValue.textContent = sortBy.options[sortBy.selectedIndex].text;
-        render();
+    function updateStats() {
+      document.getElementById('total-count').textContent = allReports.length;
+      document.getElementById('resolved-count').textContent = 
+        allReports.filter(r => r.status === 'resolved' || r.status === 'done').length;
+      document.getElementById('progress-count').textContent = 
+        allReports.filter(r => r.status === 'in progress').length;
+    }
+
+    function applyFilters() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      const categoryFilter = document.getElementById('categoryFilter').value;
+      const sortBy = document.getElementById('sortBy').value;
+
+      // Filter reports
+      filteredReports = allReports.filter(report => {
+        if (statusFilter && report.status !== statusFilter) return false;
+        if (categoryFilter && report.category !== categoryFilter) return false;
+        return true;
+      });
+
+      // Sort reports
+      filteredReports.sort((a, b) => {
+        if (sortBy === 'oldest') {
+          return a.timestamp - b.timestamp;
+        } else if (sortBy === 'status') {
+          return (a.status || '').localeCompare(b.status || '');
+        } else {
+          return b.timestamp - a.timestamp;
+        }
+      });
+
+      renderReports();
+      renderMapMarkers();
+    }
+
+    function renderReports() {
+      const reportList = document.getElementById('reportList');
+      const reportsCount = document.getElementById('reports-count');
+
+      reportsCount.textContent = `Showing ${filteredReports.length} of ${allReports.length} reports`;
+
+      if (filteredReports.length === 0) {
+        reportList.innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <h3>No Reports Found</h3>
+            <p>Try adjusting your filters to see more results.</p>
+          </div>
+        `;
+        return;
+      }
+
+      reportList.innerHTML = filteredReports.map(report => `
+        <div class="report-card status-${(report.status || 'pending').replace(' ', '-')}" 
+             onclick="selectReport('${report._id}')">
+          <div class="report-card-body">
+            <div class="report-header">
+              ${report.image_file_id ? 
+                `<img class="report-image" src="${UPLOAD_URL}${report.image_file_id}" alt="Report image">` :
+                `<div class="report-icon">
+                   <i class="bi bi-${getIconForCategory(report.category)}" aria-hidden="true"></i>
+                 </div>`
+              }
+              <div class="report-content">
+                <div class="report-title">${escapeHtml(report.description.substring(0, 80))}${report.description.length > 80 ? '...' : ''}</div>
+                <div class="report-meta">
+                  <div class="report-time">
+                    <i class="bi bi-clock" aria-hidden="true"></i>
+                    ${formatRelativeTime(report.timestamp)}
+                  </div>
+                  <div class="status-badge status-${(report.status || 'pending').replace(' ', '-')}">
+                    <i class="bi bi-${getStatusIcon(report.status)}" aria-hidden="true"></i>
+                    ${(report.status || 'pending').charAt(0).toUpperCase() + (report.status || 'pending').slice(1)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderMapMarkers() {
+      // Clear existing markers
+      currentMarkers.forEach(marker => map.removeLayer(marker));
+      currentMarkers = [];
+
+      const bounds = [];
+
+      filteredReports.forEach(report => {
+        if (report.location && report.location.lat && report.location.lng) {
+          const marker = L.marker([report.location.lat, report.location.lng])
+            .addTo(map);
+
+          const popupContent = `
+            <div class="popup-content">
+              <div class="popup-title">${escapeHtml(report.description.substring(0, 60))}${report.description.length > 60 ? '...' : ''}</div>
+              <div class="popup-status">
+                <span class="status-badge status-${(report.status || 'pending').replace(' ', '-')}">
+                  <i class="bi bi-${getStatusIcon(report.status)}" aria-hidden="true"></i>
+                  ${(report.status || 'pending').charAt(0).toUpperCase() + (report.status || 'pending').slice(1)}
+                </span>
+              </div>
+              <div class="popup-description">${escapeHtml(report.city_street || 'Location not specified')}</div>
+              <a href="/report/${report._id}" class="popup-button">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+                View Details
+              </a>
+            </div>
+          `;
+
+          marker.bindPopup(popupContent);
+          currentMarkers.push(marker);
+          bounds.push([report.location.lat, report.location.lng]);
+        }
+      });
+
+      // Fit map to show all markers
+      if (bounds.length > 0) {
+        map.fitBounds(L.latLngBounds(bounds).pad(0.1));
+      } else {
+        map.setView([31.7683, 35.2137], 10);
+      }
+    }
+
+    function selectReport(reportId) {
+      const report = allReports.find(r => r._id === reportId);
+      if (report && report.location) {
+        map.setView([report.location.lat, report.location.lng], 16);
+        
+        // Find and open the marker popup
+        const marker = currentMarkers.find(m => 
+          m.getLatLng().lat === report.location.lat && 
+          m.getLatLng().lng === report.location.lng
+        );
+        if (marker) {
+          marker.openPopup();
+        }
+      }
+    }
+
+    function initializeAnimations() {
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
       };
 
-      function render() {
-        let filtered = allReports.filter(i => {
-          if (statusFilter.value && i.status !== statusFilter.value) return false;
-          if (categoryFilter.value && i.category !== categoryFilter.value) return false;
-          return true;
-        });
-        filtered.sort((a, b) => sortBy.value === 'oldest' ? a.timestamp - b.timestamp : b.timestamp - a.timestamp);
-
-        reportList.innerHTML = '';
-        map.eachLayer(l => { if (l instanceof L.Marker) map.removeLayer(l); });
-
-        const bounds = [];
-        filtered.forEach(i => {
-          const card = document.createElement('div');
-          card.className = 'report-card';
-          card.innerHTML = `
-            <div class="card-body">
-              ${i.image_file_id ? `<img class="report-thumb" src="${UPLOAD_URL}${i.image_file_id}" alt="Thumb">` : ''}
-              <i class="category-icon bi bi-${iconFor(i.category)}"></i>
-              <div class="report-info">
-                <div class="title">${i.category || 'Report'}</div>
-                <div class="time">${i.timestamp.toLocaleDateString()} · ${i.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-              </div>
-              <span class="badge bg-${statusColor(i.status)} badge-status">${i.status}</span>
-            </div>`;
-          card.onclick = () => i.location && map.setView([i.location.lat, i.location.lng], 15);
-          reportList.appendChild(card);
-
-          if (i.location) {
-            bounds.push([i.location.lat, i.location.lng]);
-            L.marker([i.location.lat, i.location.lng])
-              .addTo(map)
-              .bindPopup(`<strong>${i.category}</strong><br>${i.description}`);
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
           }
         });
+      }, observerOptions);
 
-        if (bounds.length) map.fitBounds(L.latLngBounds(bounds).pad(0.2));
-        else map.setView([31.95, 35.93], 7);
-        setTimeout(() => map.invalidateSize(), 200);
-      }
+      // Observe main sections
+      document.querySelectorAll('.sidebar, .map-section').forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
+        observer.observe(el);
+      });
+    }
 
-      function statusColor(st) {
-        switch ((st || '').toLowerCase()) {
-          case 'resolved': return 'success';
-          case 'in progress': return 'info';
-          case 'approved': return 'primary';
-          default: return 'secondary';
-        }
-      }
+    // Utility functions
+    function getIconForCategory(category) {
+      const icons = {
+        'traffic_light_failure': 'traffic-light',
+        'water_leak': 'droplet',
+        'pothole': 'slash-circle',
+        'street_lighting': 'lightbulb',
+        'missing_signage': 'signpost',
+        'road_closure': 'sign-stop',
+        'power_cut': 'lightning'
+      };
+      return icons[category] || 'exclamation-circle';
+    }
 
-      function iconFor(cat) {
-        switch ((cat || '').toLowerCase()) {
-          case 'traffic light failure': return 'traffic-light';
-          case 'water leak': return 'droplet';
-          case 'signage': return 'signpost';
-          case 'pothole': return 'slash-circle';
-          case 'street cleaning': return 'broom';
-          default: return 'exclamation-circle';
-        }
+    function getStatusIcon(status) {
+      const icons = {
+        'done': 'check-circle',
+        'resolved': 'check-circle',
+        'in progress': 'hourglass-split',
+        'approved': 'person-check',
+        'pending': 'clock',
+        'rejected': 'x-circle'
+      };
+      return icons[status] || 'clock';
+    }
+
+    function formatRelativeTime(date) {
+      const now = new Date();
+      const diffInSeconds = Math.floor((now - date) / 1000);
+
+      if (diffInSeconds < 60) {
+        return 'Just now';
+      } else if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `${minutes}m ago`;
+      } else if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `${hours}h ago`;
+      } else {
+        const days = Math.floor(diffInSeconds / 86400);
+        return `${days}d ago`;
       }
-    })();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Auto refresh every 5 minutes
+    setInterval(() => {
+      loadReports();
+    }, 300000);
   </script>
 </body>
 

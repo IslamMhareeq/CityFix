@@ -4,237 +4,992 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Report {{ issue._id }}</title>
+  <title>Report Details - CityFix</title>
+  <meta name="description" content="View detailed information about this infrastructure report.">
 
-  <!-- Bootstrap & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- Favicon -->
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
+
   <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
+    :root {
+      --detail-primary: #3b82f6;
+      --detail-secondary: #10b981;
+      --detail-accent: #f59e0b;
+      --detail-danger: #ef4444;
     }
 
-    body {
-      background: #f8f9fa;
-    }
-
-    .navbar {
-      background-color: #fff !important;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .navbar-brand {
-      font-weight: bold;
-      color: #000;
-    }
-
-    .navbar .nav-link {
-      color: #000 !important;
-      font-weight: 500;
-    }
-
-    .navbar .nav-link:hover {
-      color: #0ef !important;
-    }
-
-    .back-nav {
-      background: #fff;
-      padding: .5rem 1rem;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .back-nav .nav-link {
-      color: #333;
-      font-weight: 500;
-    }
-
-    .d-flex-full {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .main-content {
-      flex: 1;
-      display: flex;
+    .detail-hero {
+      background: linear-gradient(135deg, var(--primary-500), var(--emerald-500));
+      color: white;
+      padding: var(--space-12) 0;
+      position: relative;
       overflow: hidden;
     }
 
-    .sidebar {
-      width: 360px;
-      background: #fff;
-      padding: 2rem 1.5rem;
-      overflow-y: auto;
+    .detail-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="detail-pattern" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="2" fill="white" opacity="0.1"/><path d="M5 15h20M15 5v20" stroke="white" stroke-width="0.5" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23detail-pattern)"/></svg>');
+      opacity: 0.3;
     }
 
-    .sidebar h2 {
-      font-size: 1.75rem;
-      margin-bottom: .5rem;
+    .detail-content {
+      position: relative;
+      z-index: 1;
     }
 
-    .badge-status {
-      display: inline-block;
-      font-size: .75rem;
-      text-transform: uppercase;
-      padding: .4em .8em;
-      border-radius: .25rem;
-      margin-bottom: 1rem;
+    .detail-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+      font-size: var(--text-sm);
+      opacity: 0.9;
     }
 
-    /* badge colors omitted for brevity */
+    .detail-breadcrumb a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: var(--transition-colors);
+    }
+
+    .detail-breadcrumb a:hover {
+      color: white;
+      text-decoration: none;
+    }
+
+    .detail-title {
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      margin-bottom: var(--space-4);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-subtitle {
+      font-size: var(--text-lg);
+      opacity: 0.9;
+      margin-bottom: var(--space-8);
+    }
+
+    .report-status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-6);
+      flex-wrap: wrap;
+    }
+
+    .status-step {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-5);
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-step.active {
+      background: rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .status-step.completed {
+      background: rgba(34, 197, 94, 0.3);
+      border: 2px solid rgba(34, 197, 94, 0.4);
+    }
+
     .status-icon {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: currentColor;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+    }
+
+    .detail-container {
+      max-width: 1400px;
+      margin: calc(-1 * var(--space-10)) auto var(--space-16);
+      position: relative;
+      z-index: 2;
+    }
+
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: var(--space-8);
+    }
+
+    .detail-main {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-8);
+    }
+
+    .detail-card {
+      background: white;
+      border-radius: var(--radius-3xl);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      transition: var(--transition-all);
+    }
+
+    .detail-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-2xl);
+    }
+
+    .detail-card-header {
+      padding: var(--space-6) var(--space-8) var(--space-4);
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+
+    .detail-card-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+
+    .detail-card-title i {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-100);
+      color: var(--primary-600);
+      border-radius: var(--radius-xl);
+      font-size: var(--text-lg);
+    }
+
+    .detail-card-subtitle {
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+    }
+
+    .detail-card-body {
+      padding: var(--space-8);
+    }
+
+    .image-showcase {
+      margin-bottom: var(--space-6);
+    }
+
+    .main-image {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      border-radius: var(--radius-2xl);
+      cursor: pointer;
+      transition: var(--transition-transform);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .main-image:hover {
+      transform: scale(1.02);
+    }
+
+    .no-image-placeholder {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+      border-radius: var(--radius-2xl);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .no-image-placeholder::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="no-image-pattern" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="currentColor" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23no-image-pattern)"/></svg>');
+    }
+
+    .no-image-icon {
+      font-size: var(--text-6xl);
+      margin-bottom: var(--space-4);
+      opacity: 0.3;
+      position: relative;
+      z-index: 1;
+    }
+
+    .no-image-text {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    .description-content {
+      font-size: var(--text-lg);
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-6);
+    }
+
+    .map-container {
+      height: 350px;
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--gray-200);
+      position: relative;
+    }
+
+    .map-overlay {
+      position: absolute;
+      top: var(--space-4);
+      left: var(--space-4);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      z-index: 1000;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .detail-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    .info-card {
+      background: white;
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--gray-200);
+      padding: var(--space-6);
+      transition: var(--transition-all);
+    }
+
+    .info-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .info-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xl);
+      flex-shrink: 0;
+    }
+
+    .info-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--text-primary);
     }
 
     .info-list {
       list-style: none;
       padding: 0;
-      margin-bottom: 1.25rem;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
     }
 
-    .info-list li {
-      margin-bottom: .5rem;
-      font-size: .9rem;
-      color: #555;
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
     }
 
-    .info-list li strong {
-      color: #000;
+    .info-item-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      flex-shrink: 0;
     }
 
-    .description-title {
-      font-weight: 600;
-      margin-top: 1rem;
-      margin-bottom: .5rem;
-    }
-
-    .description-text {
-      font-size: .95rem;
-      line-height: 1.5;
-      color: #333;
-    }
-
-    .image-card {
-      margin-top: 1.5rem;
-      border-radius: .5rem;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .image-card img {
-      width: 100%;
-      display: block;
-    }
-
-    #detailMap {
+    .info-item-content {
       flex: 1;
+      min-width: 0;
+    }
+
+    .info-item-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      margin-bottom: var(--space-1);
+    }
+
+    .info-item-value {
+      color: var(--text-primary);
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .status-pending {
+      background: var(--gray-100);
+      color: var(--gray-800);
+    }
+
+    .status-approved {
+      background: var(--blue-100);
+      color: var(--blue-800);
+    }
+
+    .status-in-progress {
+      background: var(--orange-100);
+      color: var(--orange-800);
+    }
+
+    .status-resolved,
+    .status-done {
+      background: var(--emerald-100);
+      color: var(--emerald-800);
+    }
+
+    .status-rejected {
+      background: var(--red-100);
+      color: var(--red-800);
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--primary-100);
+      color: var(--primary-800);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-xl);
+      font-weight: 600;
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: var(--transition-all);
+      text-decoration: none;
+      border: none;
+      width: 100%;
+    }
+
+    .action-btn:hover {
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-primary-action {
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+      color: white;
+    }
+
+    .btn-primary-action:hover {
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      color: white;
+    }
+
+    .btn-secondary-action {
+      background: var(--gray-100);
+      color: var(--text-secondary);
+      border: 2px solid var(--gray-300);
+    }
+
+    .btn-secondary-action:hover {
+      background: var(--gray-200);
+      color: var(--text-primary);
+    }
+
+    .btn-success-action {
+      background: linear-gradient(135deg, var(--emerald-500), var(--emerald-600));
+      color: white;
+    }
+
+    .btn-success-action:hover {
+      background: linear-gradient(135deg, var(--emerald-600), var(--emerald-700));
+      color: white;
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition-all);
+    }
+
+    .modal-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-2xl);
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: auto;
+      transform: scale(0.9);
+      transition: var(--transition-all);
+    }
+
+    .modal-backdrop.show .modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--gray-50);
+    }
+
+    .modal-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: var(--space-2);
+      border-radius: var(--radius-lg);
+      transition: var(--transition-colors);
+    }
+
+    .btn-close:hover {
+      color: var(--text-primary);
+      background: var(--gray-200);
+    }
+
+    .modal-body {
+      padding: var(--space-6);
+      text-align: center;
+    }
+
+    .modal-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-xl);
+    }
+
+    @media (max-width: 1024px) {
+      .detail-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-sidebar {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .detail-hero {
+        padding: var(--space-8) 0;
+      }
+
+      .detail-container {
+        margin: calc(-1 * var(--space-6)) var(--space-4) var(--space-12);
+      }
+
+      .detail-title {
+        font-size: var(--text-2xl);
+      }
+
+      .detail-card-body {
+        padding: var(--space-6);
+      }
+
+      .main-image,
+      .no-image-placeholder {
+        height: 250px;
+      }
+
+      .map-container {
+        height: 250px;
+      }
+
+      .report-status-bar {
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+
+      .status-step {
+        width: 100%;
+        justify-content: center;
+      }
     }
   </style>
 </head>
 
-<body class="d-flex-full">
-  <!-- Main Navbar -->
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('main.home') }}">
-        <img src="{{ url_for('static', filename='images/cityfixlogo.png') }}" width="30" height="30" alt="CityFix"
-          class="d-inline-block align-text-top">
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.dashboard') }}">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('reports.my_reports') }}">My Reports</a></li>
-          <li class="nav-item"><a class="nav-link active" href="{{ url_for('reports.report_issue') }}">Report Issue</a>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="{{ url_for('main.home') }}" class="navbar-brand">
+          <img src="{{ url_for('static', filename='images/cityfixlogo.png') }}" alt="CityFix Logo" width="32"
+            height="32" class="rounded-lg">
+          <span>CityFix</span>
+        </a>
+
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a href="{{ url_for('auth.dashboard') }}" class="nav-link">
+              <i class="bi bi-speedometer2" aria-hidden="true"></i>
+              <span>Dashboard</span>
+            </a>
           </li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a></li>
-        </ul>
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
+          <li class="nav-item">
+            <a href="{{ url_for('reports.my_reports') }}" class="nav-link">
+              <i class="bi bi-journal-text" aria-hidden="true"></i>
+              <span>My Reports</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('reports.report_issue') }}" class="nav-link">
+              <i class="bi bi-plus-circle" aria-hidden="true"></i>
+              <span>Report Issue</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('main.profile') }}" class="nav-link">
+              <i class="bi bi-person-circle" aria-hidden="true"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-primary">
+              <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+              <span>Logout</span>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- Back to all reports -->
-  <div class="back-nav">
-    <a class="nav-link" href="{{ url_for('reports.public_reports') }}">
-      <i class="bi bi-arrow-left me-1"></i> Back to All Reports
-    </a>
-  </div>
+  <!-- Detail Hero -->
+  <section class="detail-hero">
+    <div class="container">
+      <div class="detail-content">
+        <div class="detail-breadcrumb">
+          <a href="{{ url_for('reports.public_reports') }}">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Back to All Reports
+          </a>
+          <span>/</span>
+          <span>Report Details</span>
+        </div>
 
-  <div class="main-content">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <h2>{{ issue.city_street or issue.category or 'Report' }}</h2>
+        <h1 class="detail-title">{{ issue.city_street or issue.category or 'Infrastructure Report' }}</h1>
+        <p class="detail-subtitle">
+          Reported on {{ issue.timestamp }} by {{ issue.reporter_email.split('@')[0]|title }}
+        </p>
 
-      {# Status badge #}
-      {% set st = issue.status|lower %}
-      {% set badge_class = 'secondary' %}
-      {% if st in ['done','completed'] %}{% set badge_class='success' %}
-      {% elif st=='in progress' %}{% set badge_class='info' %}
-      {% elif st=='approved' %}{% set badge_class='primary' %}
-      {% elif st in ['assigned','pending'] %}{% set badge_class='warning' %}
-      {% elif st=='rejected' %}{% set badge_class='danger' %}{% endif %}
-      <span class="badge bg-{{ badge_class }} text-capitalize mb-2">{{ issue.status }}</span>
-
-      {# Category icon #}
-      {% set cat = issue.category|lower %}
-      {% if cat=='traffic light failure' %}{% set icon='traffic-light' %}
-      {% elif cat=='water leak' %}{% set icon='droplet' %}
-      {% elif cat=='signage' %}{% set icon='signpost' %}
-      {% else %}{% set icon='exclamation-circle' %}{% endif %}
-      <div class="status-icon text-{{ badge_class }} mb-3">
-        <i class="bi bi-{{ icon }}-fill"></i>
+        <div class="report-status-bar">
+          <div class="status-step {{ 'completed' if issue.status != 'pending' else 'active' }}">
+            <div class="status-icon">
+              <i class="bi bi-{{ 'check' if issue.status != 'pending' else '1' }}" aria-hidden="true"></i>
+            </div>
+            <span>Reported</span>
+          </div>
+          <div
+            class="status-step {{ 'completed' if issue.status in ['in progress', 'done'] else 'active' if issue.status == 'approved' else '' }}">
+            <div class="status-icon">
+              <i class="bi bi-{{ 'check' if issue.status in ['in progress', 'done'] else '2' }}" aria-hidden="true"></i>
+            </div>
+            <span>Approved</span>
+          </div>
+          <div
+            class="status-step {{ 'completed' if issue.status == 'done' else 'active' if issue.status == 'in progress' else '' }}">
+            <div class="status-icon">
+              <i class="bi bi-{{ 'check' if issue.status == 'done' else '3' }}" aria-hidden="true"></i>
+            </div>
+            <span>In Progress</span>
+          </div>
+          <div class="status-step {{ 'completed' if issue.status == 'done' else '' }}">
+            <div class="status-icon">
+              <i class="bi bi-{{ 'check' if issue.status == 'done' else '4' }}" aria-hidden="true"></i>
+            </div>
+            <span>Completed</span>
+          </div>
+        </div>
       </div>
+    </div>
+  </section>
 
-      <ul class="info-list">
-        <li><strong>Reported by:</strong> {{ issue.reporter_email }}</li>
-        <li><strong>Date:</strong> {{ issue.timestamp }}</li>
-        <li><strong>Location:</strong> {{ issue.location_address or issue.city_street }}</li>
-      </ul>
+  <!-- Detail Container -->
+  <main class="container">
+    <div class="detail-container">
+      <div class="detail-layout">
+        <!-- Main Content -->
+        <div class="detail-main">
+          <!-- Image Section -->
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <h2 class="detail-card-title">
+                <i class="bi bi-camera" aria-hidden="true"></i>
+                Issue Documentation
+              </h2>
+              <p class="detail-card-subtitle">Visual evidence of the reported problem</p>
+            </div>
+            <div class="detail-card-body">
+              <div class="image-showcase">
+                {% if issue.image_file_id %}
+                <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue Image"
+                  class="main-image"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
+                {% else %}
+                <div class="no-image-placeholder">
+                  <i class="bi bi-image no-image-icon" aria-hidden="true"></i>
+                  <span class="no-image-text">No Image Available</span>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
 
-      <div class="description">
-        <div class="description-title">Description of the Issue:</div>
-        <div class="description-text">{{ issue.description }}</div>
+          <!-- Description Section -->
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <h2 class="detail-card-title">
+                <i class="bi bi-chat-left-text" aria-hidden="true"></i>
+                Issue Description
+              </h2>
+              <p class="detail-card-subtitle">Detailed information about the problem</p>
+            </div>
+            <div class="detail-card-body">
+              <div class="description-content">
+                {{ issue.description }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Section -->
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <h2 class="detail-card-title">
+                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                Location Details
+              </h2>
+              <p class="detail-card-subtitle">Exact location of the reported issue</p>
+            </div>
+            <div class="detail-card-body">
+              <div class="map-container">
+                <div class="map-overlay">
+                  <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                  {{ issue.location_address or issue.city_street }}
+                </div>
+                <div id="detailMap" data-lat="{{ issue.location.lat if issue.location }}"
+                  data-lng="{{ issue.location.lng if issue.location }}" style="height: 100%; width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="detail-sidebar">
+          <!-- Status Card -->
+          <div class="info-card">
+            <div class="info-header">
+              <div class="info-icon"
+                style="background: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-100); color: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-600);">
+                <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'approved' else 'clock' }}"
+                  aria-hidden="true"></i>
+              </div>
+              <div class="info-title">Current Status</div>
+            </div>
+            <div class="status-badge status-{{ issue.status.replace(' ', '-') if issue.status else 'pending' }}">
+              <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'approved' else 'clock' }}"
+                aria-hidden="true"></i>
+              {{ issue.status.title() if issue.status else 'Pending' }}
+            </div>
+          </div>
+
+          <!-- Report Information -->
+          <div class="info-card">
+            <div class="info-header">
+              <div class="info-icon" style="background: var(--primary-100); color: var(--primary-600);">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+              </div>
+              <div class="info-title">Report Information</div>
+            </div>
+            <ul class="info-list">
+              <li class="info-item">
+                <i class="bi bi-person info-item-icon" aria-hidden="true"></i>
+                <div class="info-item-content">
+                  <div class="info-item-label">Reported By</div>
+                  <div class="info-item-value">{{ issue.reporter_email }}</div>
+                </div>
+              </li>
+              <li class="info-item">
+                <i class="bi bi-calendar3 info-item-icon" aria-hidden="true"></i>
+                <div class="info-item-content">
+                  <div class="info-item-label">Date Reported</div>
+                  <div class="info-item-value">{{ issue.timestamp }}</div>
+                </div>
+              </li>
+              <li class="info-item">
+                <i class="bi bi-tag info-item-icon" aria-hidden="true"></i>
+                <div class="info-item-content">
+                  <div class="info-item-label">Category</div>
+                  <div class="info-item-value">
+                    {% set cat = issue.category|lower %}
+                    <div class="category-badge">
+                      <i class="bi bi-{{ 'traffic-light' if cat == 'traffic light failure' else 'droplet' if cat == 'water leak' else 'signpost' if cat == 'signage' else 'exclamation-circle' }}"
+                        aria-hidden="true"></i>
+                      {{ issue.category.replace('_', ' ').title() if issue.category else 'General Issue' }}
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="info-item">
+                <i class="bi bi-geo-alt info-item-icon" aria-hidden="true"></i>
+                <div class="info-item-content">
+                  <div class="info-item-label">Location</div>
+                  <div class="info-item-value">{{ issue.location_address or issue.city_street }}</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Actions -->
+          <div class="info-card">
+            <div class="info-header">
+              <div class="info-icon" style="background: var(--emerald-100); color: var(--emerald-600);">
+                <i class="bi bi-lightning" aria-hidden="true"></i>
+              </div>
+              <div class="info-title">Quick Actions</div>
+            </div>
+            <div class="action-buttons">
+              <a href="{{ url_for('reports.public_reports') }}" class="action-btn btn-primary-action">
+                <i class="bi bi-map" aria-hidden="true"></i>
+                View All Reports
+              </a>
+              <a href="{{ url_for('reports.report_issue') }}" class="action-btn btn-success-action">
+                <i class="bi bi-plus-circle" aria-hidden="true"></i>
+                Report New Issue
+              </a>
+              <button class="action-btn btn-secondary-action" onclick="shareReport()">
+                <i class="bi bi-share" aria-hidden="true"></i>
+                Share Report
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+  </main>
 
-      {% if issue.image_file_id %}
-      <div class="image-card">
-        <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue Image">
+  <!-- Image Modal -->
+  <div id="image-modal" class="modal-backdrop" onclick="closeImageModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Issue Image</h3>
+        <button class="btn-close" onclick="closeImageModal()">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
       </div>
-      {% endif %}
-    </aside>
-
-    <!-- Map -->
-    <div id="detailMap" data-lat="{{ issue.location.lat if issue.location }}"
-      data-lng="{{ issue.location.lng if issue.location }}"></div>
+      <div class="modal-body">
+        <img id="modal-image" src="" alt="Issue image">
+      </div>
+    </div>
   </div>
 
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const map = L.map('detailMap');
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
-    const el = document.getElementById('detailMap');
-    const lat = parseFloat(el.dataset.lat), lng = parseFloat(el.dataset.lng);
-    if (!isNaN(lat) && !isNaN(lng)) {
-      map.setView([lat, lng], 15);
-      L.marker([lat, lng]).addTo(map);
-    } else {
-      map.setView([31.95, 35.93], 7);
+    let map;
+
+    // Initialize map
+    document.addEventListener('DOMContentLoaded', function () {
+      initializeMap();
+      initializeAnimations();
+    });
+
+    function initializeMap() {
+      const mapElement = document.getElementById('detailMap');
+      const lat = parseFloat(mapElement.dataset.lat);
+      const lng = parseFloat(mapElement.dataset.lng);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        map = L.map('detailMap').setView([lat, lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        L.marker([lat, lng]).addTo(map);
+      } else {
+        // Default view if no coordinates
+        map = L.map('detailMap').setView([31.95, 35.93], 7);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+      }
+
+      // Ensure map renders properly
+      setTimeout(() => map.invalidateSize(), 200);
     }
-    setTimeout(() => map.invalidateSize(), 200);
+
+    function initializeAnimations() {
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, observerOptions);
+
+      // Observe cards
+      document.querySelectorAll('.detail-card, .info-card').forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+        observer.observe(el);
+      });
+    }
+
+    // Image modal functions
+    function showImageModal(src) {
+      const modal = document.getElementById('image-modal');
+      const modalImage = document.getElementById('modal-image');
+
+      modalImage.src = src;
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeImageModal() {
+      const modal = document.getElementById('image-modal');
+      modal.classList.remove('show');
+      document.body.style.overflow = 'auto';
+
+      setTimeout(() => {
+        document.getElementById('modal-image').src = '';
+      }, 300);
+    }
+
+    // Share function
+    function shareReport() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'CityFix Report',
+          text: 'Check out this infrastructure report',
+          url: window.location.href
+        });
+      } else {
+        // Fallback to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          alert('Report link copied to clipboard!');
+        });
+      }
+    }
+
+    // Handle escape key for modals
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closeImageModal();
+      }
+    });
   </script>
 </body>
 
