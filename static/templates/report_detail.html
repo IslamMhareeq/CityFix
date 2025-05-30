@@ -786,10 +786,8 @@
           <!-- Status Card -->
           <div class="info-card">
             <div class="info-header">
-              <div class="info-icon"
-                style="background: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-100); color: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-600);">
-                <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'approved' else 'clock' }}"
-                  aria-hidden="true"></i>
+              <div class="info-icon"style="background: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-100); color: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-600);">
+                <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'approved' else 'clock' }}"aria-hidden="true"></i>
               </div>
               <div class="info-title">Current Status</div>
             </div>
