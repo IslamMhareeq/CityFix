@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard - CityFix</title>
   <meta name="description" content="Admin dashboard for managing reports and users in CityFix.">
 
@@ -295,6 +295,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
     }
 
     .content-card-title {
@@ -319,7 +321,9 @@
     }
 
     .search-box {
-      max-width: 300px;
+      max-width: 350px;
+      flex: 1;
+      min-width: 250px;
       position: relative;
     }
 
@@ -348,13 +352,16 @@
       pointer-events: none;
     }
 
-    .reports-table {
+    .reports-table-container {
       overflow-x: auto;
+      max-height: 600px;
+      position: relative;
     }
 
     .table {
       width: 100%;
       border-collapse: collapse;
+      margin: 0;
     }
 
     .table th {
@@ -366,6 +373,9 @@
       font-size: 0.875rem;
       border-bottom: 1px solid var(--gray-200);
       white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     .table td {
@@ -419,7 +429,7 @@
     }
 
     .description-cell {
-      max-width: 200px;
+      max-width: 250px;
     }
 
     .description-text {
@@ -427,6 +437,11 @@
       font-size: 0.875rem;
       line-height: 1.4;
       cursor: pointer;
+      transition: var(--transition-colors);
+    }
+
+    .description-text:hover {
+      color: var(--text-primary);
     }
 
     .description-truncated {
@@ -468,6 +483,7 @@
       display: flex;
       gap: var(--space-2);
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .assign-select {
@@ -477,6 +493,7 @@
       font-size: 0.875rem;
       background: white;
       min-width: 120px;
+      flex: 1;
     }
 
     .assign-btn {
@@ -508,6 +525,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      min-width: 32px;
+      height: 32px;
     }
 
     .delete-btn:hover {
@@ -593,7 +612,7 @@
       opacity: 0.3;
     }
 
-    /* ===== MODAL STYLES - PERFECTLY CENTERED ===== */
+    /* ===== FIXED MODAL STYLES ===== */
     .modal-backdrop {
       position: fixed;
       top: 0;
@@ -602,20 +621,18 @@
       bottom: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
-      z-index: 1050;
+      z-index: 9999;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--space-4);
+      padding: 20px;
       opacity: 0;
       visibility: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s ease;
       box-sizing: border-box;
-      /* Prevent scrolling issues */
-      overflow: hidden;
     }
 
     .modal-backdrop.show {
@@ -627,21 +644,19 @@
       background: white;
       border-radius: var(--radius-2xl);
       box-shadow: var(--shadow-2xl);
-      max-width: 90vw;
-      max-height: 90vh;
+      max-width: min(90vw, 800px);
+      max-height: min(90vh, 600px);
+      width: auto;
       overflow: hidden;
-      transform: scale(0.9);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.3s ease;
       position: relative;
-      margin: 0;
-      box-sizing: border-box;
-      /* Ensure modal is always visible */
-      min-width: 280px;
-      min-height: 200px;
+      display: flex;
+      flex-direction: column;
     }
 
     .modal-backdrop.show .modal {
-      transform: scale(1);
+      transform: scale(1) translateY(0);
     }
 
     .modal-header {
@@ -651,6 +666,7 @@
       align-items: center;
       justify-content: space-between;
       background: var(--gray-50);
+      flex-shrink: 0;
     }
 
     .modal-title {
@@ -683,7 +699,7 @@
 
     .modal-body {
       padding: var(--space-6);
-      max-height: 70vh;
+      flex: 1;
       overflow-y: auto;
     }
 
@@ -695,17 +711,13 @@
       justify-content: flex-end;
       gap: var(--space-3);
       background: var(--gray-50);
+      flex-shrink: 0;
     }
 
     /* Image Modal Specific Styles */
     .modal.image-modal {
-      max-width: 95vw;
-      max-height: 95vh;
-      width: auto;
-      height: auto;
-      /* Center the modal content */
-      display: flex;
-      flex-direction: column;
+      max-width: min(95vw, 1000px);
+      max-height: min(95vh, 800px);
     }
 
     .modal.image-modal .modal-body {
@@ -714,9 +726,7 @@
       align-items: center;
       justify-content: center;
       background: var(--gray-900);
-      min-height: 200px;
-      max-height: 80vh;
-      overflow: hidden;
+      min-height: 300px;
     }
 
     .modal.image-modal img {
@@ -725,26 +735,19 @@
       height: auto;
       width: auto;
       object-fit: contain;
-      border-radius: 0;
       display: block;
     }
 
     /* Location Modal Specific Styles */
     .modal.location-modal {
-      max-width: 800px;
-      width: 90vw;
-      max-height: 600px;
-      height: auto;
-      /* Center the modal content */
-      display: flex;
-      flex-direction: column;
+      max-width: min(90vw, 900px);
+      max-height: min(90vh, 700px);
     }
 
     .modal.location-modal .modal-body {
       padding: 0;
       height: 400px;
       min-height: 300px;
-      flex: 1;
     }
 
     #modal-map {
@@ -836,6 +839,31 @@
       color: white;
     }
 
+    /* Loading States */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      color: var(--text-muted);
+      padding: var(--space-8);
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--gray-300);
+      border-top-color: var(--primary-500);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
     /* Responsive Design */
     @media (max-width: 1024px) {
       .main-content {
@@ -866,6 +894,7 @@
 
       .search-box {
         max-width: 100%;
+        min-width: auto;
       }
 
       .table {
@@ -877,33 +906,23 @@
         padding: var(--space-3) var(--space-4);
       }
 
+      .assign-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .assign-select {
+        min-width: auto;
+      }
+
       .modal {
         max-width: 95vw;
         max-height: 95vh;
-        margin: var(--space-2);
-        /* Ensure centering on mobile */
-        width: calc(100vw - var(--space-4));
-        max-width: calc(100vw - var(--space-4));
-      }
-
-      .modal.image-modal {
-        max-height: 90vh;
-        width: auto;
-        max-width: calc(100vw - var(--space-4));
+        margin: 10px;
       }
 
       .modal.image-modal .modal-body {
-        max-height: 70vh;
         min-height: 200px;
-      }
-
-      .modal.image-modal img {
-        max-height: 60vh;
-      }
-
-      .modal.location-modal {
-        width: calc(100vw - var(--space-4));
-        max-width: calc(100vw - var(--space-4));
       }
 
       .modal.location-modal .modal-body {
@@ -968,30 +987,6 @@
       padding: 0 var(--space-6);
     }
 
-    /* Loading Animation */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-2);
-      color: var(--text-muted);
-    }
-
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--gray-300);
-      border-top-color: var(--primary-500);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
     /* Utility Classes */
     .text-center {
       text-align: center;
@@ -1016,6 +1011,98 @@
     .rounded-lg {
       border-radius: var(--radius-lg);
     }
+
+    /* Hide scrollbar for webkit browsers */
+    .reports-table-container::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .reports-table-container::-webkit-scrollbar-track {
+      background: var(--gray-100);
+      border-radius: 3px;
+    }
+
+    .reports-table-container::-webkit-scrollbar-thumb {
+      background: var(--gray-400);
+      border-radius: 3px;
+    }
+
+    .reports-table-container::-webkit-scrollbar-thumb:hover {
+      background: var(--gray-500);
+    }
+
+    /* Liquid Animation Brand Style */
+    .navbar-brand-liquid {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 8px 16px;
+      border-radius: 12px;
+    }
+
+    .liquid-text {
+      position: relative;
+      color: white;
+      z-index: 2;
+      overflow: hidden;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .liquid-text::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981, #2563eb);
+      z-index: -1;
+      animation: liquid 4s ease-in-out infinite;
+      border-radius: inherit;
+    }
+
+    @keyframes liquid {
+
+      0%,
+      100% {
+        left: -100%;
+        transform: skewX(0deg);
+      }
+
+      50% {
+        left: 100%;
+        transform: skewX(20deg);
+      }
+    }
+
+    /* Hover Effects */
+    .navbar-brand-liquid:hover {
+      text-decoration: none;
+      transform: scale(1.02);
+    }
+
+    .navbar-brand-liquid:hover .liquid-text::before {
+      animation-duration: 1s;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .navbar-brand-liquid {
+        font-size: 22px;
+      }
+
+      .liquid-text {
+        padding: 10px 16px;
+      }
+    }
   </style>
 </head>
 
@@ -1023,11 +1110,7 @@
   <!-- Navigation -->
   <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="navbar-content">
-      <a href="{{ url_for('main.home') }}" class="navbar-brand">
-        <img src="{{ url_for('static', filename='images/cityfixlogo.png') }}" alt="CityFix Logo" width="32"
-          height="32" class="rounded-lg">
-        <span>CityFix</span>
-      </a>
+      <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span> </a>
 
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -1090,10 +1173,10 @@
             <i class="bi bi-people" aria-hidden="true"></i>
             <span>Manage Users</span>
           </a>
-          <a href="#" class="quick-action-btn" onclick="refreshData()">
+          <button class="quick-action-btn" onclick="refreshData()">
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
             <span>Refresh</span>
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -1186,7 +1269,7 @@
           </div>
         </div>
 
-        <div class="reports-table">
+        <div class="reports-table-container">
           <table class="table" id="reports-table">
             <thead>
               <tr>
@@ -1199,6 +1282,7 @@
               </tr>
             </thead>
             <tbody>
+              {% if issues %}
               {% for issue in issues %}
               <tr>
                 <td>
@@ -1248,13 +1332,14 @@
                 <td>
                   <span
                     class="badge badge-{{ 'success' if issue.status == 'done' else 'warning' if issue.status == 'in progress' else 'info' if issue.status == 'assigned' else 'secondary' }}">
-                    <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'assigned' else 'clock' }}" aria-hidden="true"></i>
+                    <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'assigned' else 'clock' }}"
+                      aria-hidden="true"></i>
                     {{ issue.status|title }}
                   </span>
                 </td>
 
                 <td>
-                  <div style="display: flex; gap: 0.5rem;">
+                  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <form action="{{ url_for('reports.assign_issue', issue_id=issue._id) }}" method="post"
                       class="assign-form">
                       <select name="maintenance_email" class="assign-select">
@@ -1274,7 +1359,7 @@
                     {% if user.role == 'admin' or issue.reporter_email == user.email %}
                     <form action="{{ url_for('reports.delete_issue', issue_id=issue._id) }}" method="post"
                       onsubmit="return confirm('Are you sure you want to delete this report?');">
-                      <button type="submit" class="delete-btn">
+                      <button type="submit" class="delete-btn" title="Delete Report">
                         <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
                     </form>
@@ -1284,15 +1369,16 @@
 
               </tr>
               {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="6" class="empty-state">
+                  <i class="bi bi-inbox" aria-hidden="true"></i>
+                  <p>No reports found</p>
+                </td>
+              </tr>
+              {% endif %}
             </tbody>
           </table>
-
-          {% if not issues %}
-          <div class="empty-state">
-            <i class="bi bi-inbox" aria-hidden="true"></i>
-            <p>No reports found</p>
-          </div>
-          {% endif %}
         </div>
       </div>
 
@@ -1401,44 +1487,75 @@
     function filterReports() {
       const searchTerm = document.getElementById('search-input').value.toLowerCase();
       const table = document.getElementById('reports-table');
+
+      if (!table) return;
+
       const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+      let visibleCount = 0;
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? '' : 'none';
+        const isVisible = text.includes(searchTerm);
+
+        row.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
       }
+
+      // Optional: Update a counter if you have one
+      console.log(`Showing ${visibleCount} of ${rows.length} reports`);
     }
 
     // Toggle description
     function toggleDescription(element) {
       element.classList.toggle('description-truncated');
+
+      // Update title for accessibility
+      if (element.classList.contains('description-truncated')) {
+        element.title = 'Click to expand';
+      } else {
+        element.title = 'Click to collapse';
+      }
     }
 
     // Image modal functions
     function showImageModal(src) {
       const modal = document.getElementById('image-modal');
       const modalImage = document.getElementById('modal-image');
-      
+
+      if (!modal || !modalImage || !src) return;
+
       modalImage.src = src;
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
-      
+
+      // Focus management for accessibility
+      modal.querySelector('.btn-close')?.focus();
+
       // Add loading state
-      modalImage.onload = function() {
+      modalImage.onload = function () {
         this.style.opacity = '1';
+      };
+      modalImage.onerror = function () {
+        this.alt = 'Failed to load image';
       };
       modalImage.style.opacity = '0.5';
     }
 
     function closeImageModal() {
       const modal = document.getElementById('image-modal');
+      if (!modal) return;
+
       modal.classList.remove('show');
       document.body.style.overflow = 'auto';
-      
+
       // Clear the image source after animation
       setTimeout(() => {
-        document.getElementById('modal-image').src = '';
+        const modalImage = document.getElementById('modal-image');
+        if (modalImage) {
+          modalImage.src = '';
+          modalImage.style.opacity = '1';
+        }
       }, 300);
     }
 
@@ -1446,42 +1563,70 @@
     function showLocationModal(issueId, lat, lng) {
       const modal = document.getElementById('location-modal');
       const directionsLink = document.getElementById('directions-link');
-      
+
+      if (!modal || !lat || !lng) return;
+
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
-      
+
       // Update directions link
-      directionsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+      if (directionsLink) {
+        directionsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+      }
 
       // Initialize map with a small delay to ensure modal is visible
       setTimeout(() => {
-        if (modalMap) {
-          modalMap.remove();
-        }
-        
-        modalMap = L.map('modal-map').setView([lat, lng], 15);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(modalMap);
-        
-        L.marker([lat, lng]).addTo(modalMap)
-          .bindPopup(`Issue Location<br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
-          .openPopup();
-          
-        // Invalidate size to ensure proper rendering
-        setTimeout(() => modalMap.invalidateSize(), 250);
+        initializeModalMap(lat, lng);
       }, 100);
+
+      // Focus management for accessibility
+      modal.querySelector('.btn-close')?.focus();
     }
 
     function closeLocationModal() {
       const modal = document.getElementById('location-modal');
+      if (!modal) return;
+
       modal.classList.remove('show');
       document.body.style.overflow = 'auto';
-      
+
+      // Clean up map
       if (modalMap) {
         modalMap.remove();
         modalMap = null;
+      }
+    }
+
+    function initializeModalMap(lat, lng) {
+      const mapContainer = document.getElementById('modal-map');
+      if (!mapContainer) return;
+
+      // Remove existing map if any
+      if (modalMap) {
+        modalMap.remove();
+      }
+
+      try {
+        modalMap = L.map('modal-map').setView([lat, lng], 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 18
+        }).addTo(modalMap);
+
+        L.marker([lat, lng]).addTo(modalMap)
+          .bindPopup(`Issue Location<br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
+          .openPopup();
+
+        // Invalidate size to ensure proper rendering
+        setTimeout(() => {
+          if (modalMap) {
+            modalMap.invalidateSize();
+          }
+        }, 250);
+      } catch (error) {
+        console.error('Error initializing map:', error);
+        mapContainer.innerHTML = '<div class="loading"><span>Error loading map</span></div>';
       }
     }
 
@@ -1489,10 +1634,12 @@
     function refreshData() {
       // Show loading state
       const refreshBtn = document.querySelector('[onclick="refreshData()"]');
+      if (!refreshBtn) return;
+
       const originalText = refreshBtn.innerHTML;
       refreshBtn.innerHTML = '<i class="bi bi-hourglass-split" aria-hidden="true"></i><span>Refreshing...</span>';
       refreshBtn.style.pointerEvents = 'none';
-      
+
       // Simulate refresh (replace with actual reload)
       setTimeout(() => {
         location.reload();
@@ -1522,24 +1669,25 @@
 
       // Add loading states to forms
       document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function () {
+        form.addEventListener('submit', function (e) {
           const submitBtn = this.querySelector('button[type="submit"]');
           if (submitBtn && !submitBtn.hasAttribute('onclick')) {
-            submitBtn.disabled = true;
             const originalContent = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="bi bi-hourglass-split" aria-hidden="true"></i>';
-            
+            submitBtn.disabled = true;
+
+            // Re-enable after timeout (fallback)
             setTimeout(() => {
               submitBtn.disabled = false;
               submitBtn.innerHTML = originalContent;
-            }, 2000);
+            }, 5000);
           }
         });
       });
 
       // Add click-outside-to-close for modals
       document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-        backdrop.addEventListener('click', function(e) {
+        backdrop.addEventListener('click', function (e) {
           if (e.target === this) {
             if (this.id === 'image-modal') {
               closeImageModal();
@@ -1553,24 +1701,69 @@
       // Add keyboard navigation for table
       const table = document.getElementById('reports-table');
       if (table) {
-        table.addEventListener('keydown', function(e) {
+        table.addEventListener('keydown', function (e) {
           if (e.key === 'Enter' && e.target.classList.contains('image-thumb')) {
             e.target.click();
           }
         });
       }
 
-      // Add focus management for accessibility
-      const imageModal = document.getElementById('image-modal');
-      const locationModal = document.getElementById('location-modal');
-      
-      [imageModal, locationModal].forEach(modal => {
-        modal.addEventListener('transitionend', function(e) {
-          if (e.target === this && this.classList.contains('show')) {
-            const closeBtn = this.querySelector('.btn-close');
-            if (closeBtn) closeBtn.focus();
+      // Improve search input behavior
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        // Clear search on Escape
+        searchInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            this.value = '';
+            filterReports();
+            this.blur();
           }
         });
+
+        // Debounce search input
+        let searchTimeout;
+        searchInput.addEventListener('input', function () {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(filterReports, 300);
+        });
+      }
+
+      // Focus management for accessibility
+      const imageModal = document.getElementById('image-modal');
+      const locationModal = document.getElementById('location-modal');
+
+      [imageModal, locationModal].forEach(modal => {
+        if (modal) {
+          modal.addEventListener('transitionend', function (e) {
+            if (e.target === this && this.classList.contains('show')) {
+              const closeBtn = this.querySelector('.btn-close');
+              if (closeBtn) closeBtn.focus();
+            }
+          });
+        }
+      });
+
+      // Initialize intersection observer for animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, observerOptions);
+
+      // Observe stat cards
+      document.querySelectorAll('.stat-card').forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+        observer.observe(el);
       });
     });
 
@@ -1578,6 +1771,7 @@
     setInterval(() => {
       // You can implement live updates here
       console.log('Auto-refreshing stats...');
+      // Example: fetch('/api/stats').then(data => updateStats(data));
     }, 30000);
 
     // Performance optimization: Lazy load images
@@ -1586,9 +1780,11 @@
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const img = entry.target;
-            img.src = img.dataset.src;
-            img.classList.remove('loading');
-            observer.unobserve(img);
+            if (img.dataset.src) {
+              img.src = img.dataset.src;
+              img.classList.remove('loading');
+              observer.unobserve(img);
+            }
           }
         });
       });
@@ -1597,6 +1793,17 @@
         imageObserver.observe(img);
       });
     }
+
+    // Handle connection issues
+    window.addEventListener('online', function () {
+      console.log('Connection restored');
+      // Optional: Show notification or refresh data
+    });
+
+    window.addEventListener('offline', function () {
+      console.log('Connection lost');
+      // Optional: Show offline notification
+    });
   </script>
 </body>
 

@@ -613,6 +613,78 @@
         justify-content: center;
       }
     }
+
+    /* Liquid Animation Brand Style */
+    .navbar-brand-liquid {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 8px 16px;
+      border-radius: 12px;
+    }
+
+    .liquid-text {
+      position: relative;
+      color: white;
+      z-index: 2;
+      overflow: hidden;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .liquid-text::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981, #2563eb);
+      z-index: -1;
+      animation: liquid 4s ease-in-out infinite;
+      border-radius: inherit;
+    }
+
+    @keyframes liquid {
+
+      0%,
+      100% {
+        left: -100%;
+        transform: skewX(0deg);
+      }
+
+      50% {
+        left: 100%;
+        transform: skewX(20deg);
+      }
+    }
+
+    /* Hover Effects */
+    .navbar-brand-liquid:hover {
+      text-decoration: none;
+      transform: scale(1.02);
+    }
+
+    .navbar-brand-liquid:hover .liquid-text::before {
+      animation-duration: 1s;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .navbar-brand-liquid {
+        font-size: 22px;
+      }
+
+      .liquid-text {
+        padding: 10px 16px;
+      }
+    }
   </style>
 </head>
 
@@ -621,11 +693,7 @@
   <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="container">
       <div class="navbar-content">
-        <a href="{{ url_for('main.home') }}" class="navbar-brand">
-          <img src="{{ url_for('static', filename='images/cityfixlogo.png') }}" alt="CityFix Logo" width="32"
-            height="32" class="rounded-lg">
-          <span>CityFix</span>
-        </a>
+        <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span> </a>
 
         <ul class="navbar-nav">
           <li class="nav-item">
@@ -732,7 +800,8 @@
               <div class="image-showcase">
                 {% if issue.image_file_id %}
                 <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue Image"
-                  class="main-image"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
+                  class="main-image"
+                  onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
                 {% else %}
                 <div class="no-image-placeholder">
                   <i class="bi bi-image no-image-icon" aria-hidden="true"></i>
@@ -786,8 +855,10 @@
           <!-- Status Card -->
           <div class="info-card">
             <div class="info-header">
-              <div class="info-icon"style="background: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-100); color: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-600);">
-                <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'approved' else 'clock' }}"aria-hidden="true"></i>
+              <div class="info-icon"
+                style="background: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-100); color: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-600);">
+                <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'approved' else 'clock' }}"
+                  aria-hidden="true"></i>
               </div>
               <div class="info-title">Current Status</div>
             </div>

@@ -779,15 +779,87 @@
       .btn-complete {
         justify-content: center;
       }
-      
+
       .google-maps-btn,
       .directions-btn {
         padding: var(--space-4);
         font-size: var(--text-base);
       }
-      
+
       .coordinates-display {
         font-size: var(--text-xs);
+      }
+    }
+
+    /* Liquid Animation Brand Style */
+    .navbar-brand-liquid {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 8px 16px;
+      border-radius: 12px;
+    }
+
+    .liquid-text {
+      position: relative;
+      color: white;
+      z-index: 2;
+      overflow: hidden;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .liquid-text::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981, #2563eb);
+      z-index: -1;
+      animation: liquid 4s ease-in-out infinite;
+      border-radius: inherit;
+    }
+
+    @keyframes liquid {
+
+      0%,
+      100% {
+        left: -100%;
+        transform: skewX(0deg);
+      }
+
+      50% {
+        left: 100%;
+        transform: skewX(20deg);
+      }
+    }
+
+    /* Hover Effects */
+    .navbar-brand-liquid:hover {
+      text-decoration: none;
+      transform: scale(1.02);
+    }
+
+    .navbar-brand-liquid:hover .liquid-text::before {
+      animation-duration: 1s;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .navbar-brand-liquid {
+        font-size: 22px;
+      }
+
+      .liquid-text {
+        padding: 10px 16px;
       }
     }
   </style>
@@ -798,10 +870,7 @@
   <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="container">
       <div class="navbar-content">
-        <a href="{{ url_for('main.home') }}" class="navbar-brand">
-          <img src="{{ url_for('static', filename='images/cityfixlogo.png') }}" alt="CityFix Logo" width="32"
-            height="32" class="rounded-lg">
-          <span>CityFix</span>
+          <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span>
         </a>
 
         <ul class="navbar-nav">
@@ -847,15 +916,18 @@
 
         <div class="maintenance-stats">
           <div class="maintenance-stat">
-            <span class="maintenance-stat-number">{{ issues|selectattr('status', 'equalto', 'pending')|list|length }}</span>
+            <span class="maintenance-stat-number">{{ issues|selectattr('status', 'equalto', 'pending')|list|length
+              }}</span>
             <span class="maintenance-stat-label">Pending</span>
           </div>
           <div class="maintenance-stat">
-            <span class="maintenance-stat-number">{{ issues|selectattr('status', 'equalto', 'in progress')|list|length }}</span>
+            <span class="maintenance-stat-number">{{ issues|selectattr('status', 'equalto', 'in progress')|list|length
+              }}</span>
             <span class="maintenance-stat-label">In Progress</span>
           </div>
           <div class="maintenance-stat">
-            <span class="maintenance-stat-number">{{ issues|selectattr('status', 'equalto', 'resolved')|list|length }}</span>
+            <span class="maintenance-stat-number">{{ issues|selectattr('status', 'equalto', 'resolved')|list|length
+              }}</span>
             <span class="maintenance-stat-label">Resolved</span>
           </div>
         </div>
@@ -888,18 +960,23 @@
       {% if issues %}
       <div class="tasks-grid">
         {% for issue in issues %}
-        <div class="task-card {{ 'awaiting' if issue.awaiting else 'rejected' if issue.rejection_reason else 'completed' if issue.status == 'done' }}">
+        <div
+          class="task-card {{ 'awaiting' if issue.awaiting else 'rejected' if issue.rejection_reason else 'completed' if issue.status == 'done' }}">
           <!-- Task Header -->
           <div class="task-header">
             <div class="task-meta">
               <div class="task-category">
                 {% set cat = issue.category|lower %}
-                <div class="category-icon category-{{ 'traffic' if cat == 'traffic light failure' else 'water' if cat == 'water leak' else 'power' if cat == 'power cut' else 'road' if cat == 'hole in the road' else 'default' }}">
-                  <i class="bi bi-{{ 'traffic-light-fill' if cat == 'traffic light failure' else 'droplet-fill' if cat == 'water leak' else 'bolt-fill' if cat == 'power cut' else 'slash-circle-fill' if cat == 'hole in the road' else 'exclamation-circle-fill' }}" aria-hidden="true"></i>
+                <div
+                  class="category-icon category-{{ 'traffic' if cat == 'traffic light failure' else 'water' if cat == 'water leak' else 'power' if cat == 'power cut' else 'road' if cat == 'hole in the road' else 'default' }}">
+                  <i class="bi bi-{{ 'traffic-light-fill' if cat == 'traffic light failure' else 'droplet-fill' if cat == 'water leak' else 'bolt-fill' if cat == 'power cut' else 'slash-circle-fill' if cat == 'hole in the road' else 'exclamation-circle-fill' }}"
+                    aria-hidden="true"></i>
                 </div>
-                <div class="category-name">{{ issue.category.replace('_', ' ').title() if issue.category else 'General Task' }}</div>
+                <div class="category-name">{{ issue.category.replace('_', ' ').title() if issue.category else 'General
+                  Task' }}</div>
               </div>
-              <div class="task-priority priority-{{ 'high' if issue.status == 'pending' else 'medium' if issue.status == 'in progress' else 'low' }}">
+              <div
+                class="task-priority priority-{{ 'high' if issue.status == 'pending' else 'medium' if issue.status == 'in progress' else 'low' }}">
                 {{ 'High' if issue.status == 'pending' else 'Medium' if issue.status == 'in progress' else 'Low' }}
               </div>
             </div>
@@ -937,8 +1014,10 @@
                 <div class="detail-content">
                   <div class="detail-label">Status</div>
                   <div class="detail-value">
-                    <span class="status-badge status-{{ issue.status.replace(' ', '-') if issue.status else 'pending' }}">
-                      <i class="bi bi-{{ 'clock' if issue.status == 'pending' else 'hourglass-split' if issue.status == 'in progress' else 'check-circle' if issue.status == 'resolved' else 'clock' }}" aria-hidden="true"></i>
+                    <span
+                      class="status-badge status-{{ issue.status.replace(' ', '-') if issue.status else 'pending' }}">
+                      <i class="bi bi-{{ 'clock' if issue.status == 'pending' else 'hourglass-split' if issue.status == 'in progress' else 'check-circle' if issue.status == 'resolved' else 'clock' }}"
+                        aria-hidden="true"></i>
                       {{ issue.status.title() if issue.status else 'Pending' }}
                       {% if issue.awaiting %}(Awaiting Approval){% endif %}
                     </span>
@@ -952,9 +1031,9 @@
                 <div class="detail-content">
                   <div class="detail-label">Issue Photo</div>
                   <div class="detail-value">
-                    <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" 
-                         alt="Issue image" 
-                         style="width: 100%; max-width: 200px; height: 120px; object-fit: cover; border-radius: var(--radius-lg); cursor: pointer;"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
+                    <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue image"
+                      style="width: 100%; max-width: 200px; height: 120px; object-fit: cover; border-radius: var(--radius-lg); cursor: pointer;"
+                      onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
                   </div>
                 </div>
               </div>
@@ -975,10 +1054,11 @@
               Awaiting Admin Approval
             </div>
             {% else %}
-            <form class="status-form" action="{{ url_for('reports.maintenance_update_status', issue_id=issue._id) }}" method="POST">
+            <form class="status-form" action="{{ url_for('reports.maintenance_update_status', issue_id=issue._id) }}"
+              method="POST">
               <select name="status" class="status-select">
-                <option value="in progress" {% if issue.status == 'in progress' %}selected{% endif %}>In Progress</option>
-                <option value="resolved" {% if issue.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="in progress" {% if issue.status=='in progress' %}selected{% endif %}>In Progress</option>
+                <option value="resolved" {% if issue.status=='resolved' %}selected{% endif %}>Resolved</option>
               </select>
               <button type="submit" class="btn-update">
                 <i class="bi bi-check" aria-hidden="true"></i>
@@ -1008,7 +1088,7 @@
         <i class="bi bi-tools" aria-hidden="true"></i>
         <h3>No Tasks Assigned</h3>
         <p>
-          You don't have any assigned maintenance tasks at this time. 
+          You don't have any assigned maintenance tasks at this time.
           New tasks will appear here when they're assigned to you.
         </p>
       </div>
@@ -1054,28 +1134,24 @@
           {% if issue.location and issue.location.lat and issue.location.lng %}
           <div>
             <h4 class="font-semibold mb-3">Location</h4>
-            <div id="map-{{ issue._id }}" style="height: 200px; border-radius: var(--radius-lg);" 
-                 data-lat="{{ issue.location.lat }}" data-lng="{{ issue.location.lng }}"></div>
-            
+            <div id="map-{{ issue._id }}" style="height: 200px; border-radius: var(--radius-lg);"
+              data-lat="{{ issue.location.lat }}" data-lng="{{ issue.location.lng }}"></div>
+
             <!-- Google Maps Link -->
             <div class="mt-4 space-y-2">
-              <a href="https://www.google.com/maps/search/?api=1&query={{ issue.location.lat }},{{ issue.location.lng }}" 
-                 target="_blank" 
-                 class="google-maps-btn"
-                 onclick="trackMapClick('view_location', '{{ issue._id }}')">
+              <a href="https://www.google.com/maps/search/?api=1&query={{ issue.location.lat }},{{ issue.location.lng }}"
+                target="_blank" class="google-maps-btn" onclick="trackMapClick('view_location', '{{ issue._id }}')">
                 <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
                 Open in Google Maps
               </a>
-              
+
               <!-- Get Directions Link -->
-              <a href="https://www.google.com/maps/dir/?api=1&destination={{ issue.location.lat }},{{ issue.location.lng }}" 
-                 target="_blank" 
-                 class="directions-btn"
-                 onclick="trackMapClick('get_directions', '{{ issue._id }}')">
+              <a href="https://www.google.com/maps/dir/?api=1&destination={{ issue.location.lat }},{{ issue.location.lng }}"
+                target="_blank" class="directions-btn" onclick="trackMapClick('get_directions', '{{ issue._id }}')">
                 <i class="bi bi-compass" aria-hidden="true"></i>
                 Get Directions
               </a>
-              
+
               <!-- Coordinates Display -->
               <div class="coordinates-display">
                 <i class="bi bi-geo" aria-hidden="true"></i>
@@ -1104,11 +1180,9 @@
           Close
         </button>
         {% if issue.location and issue.location.lat and issue.location.lng %}
-        <a href="https://www.google.com/maps/search/?api=1&query={{ issue.location.lat }},{{ issue.location.lng }}" 
-           target="_blank" 
-           class="btn btn-primary inline-flex items-center gap-2"
-           style="text-decoration: none; color: white;"
-           onclick="trackMapClick('quick_view', '{{ issue._id }}')">
+        <a href="https://www.google.com/maps/search/?api=1&query={{ issue.location.lat }},{{ issue.location.lng }}"
+          target="_blank" class="btn btn-primary inline-flex items-center gap-2"
+          style="text-decoration: none; color: white;" onclick="trackMapClick('quick_view', '{{ issue._id }}')">
           <i class="bi bi-map" aria-hidden="true"></i>
           View on Map
         </a>
@@ -1118,9 +1192,11 @@
   </div>
 
   <!-- Completion Modal -->
-  <div id="completion-modal-{{ issue._id }}" class="modal-backdrop" onclick="closeModal('completion-modal-{{ issue._id }}')">
+  <div id="completion-modal-{{ issue._id }}" class="modal-backdrop"
+    onclick="closeModal('completion-modal-{{ issue._id }}')">
     <div class="modal" onclick="event.stopPropagation()">
-      <form action="{{ url_for('reports.maintenance_complete_issue', issue_id=issue._id) }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ url_for('reports.maintenance_complete_issue', issue_id=issue._id) }}" method="POST"
+        enctype="multipart/form-data">
         <div class="modal-header">
           <h3 class="modal-title">Mark Task Complete</h3>
           <button type="button" class="btn-close" onclick="closeModal('completion-modal-{{ issue._id }}')">
@@ -1130,8 +1206,8 @@
         <div class="modal-body">
           <div class="form-group mb-4">
             <label class="form-label">Work Description</label>
-            <textarea name="completion_description" class="form-control" rows="4" 
-                      placeholder="Describe the work completed..." required></textarea>
+            <textarea name="completion_description" class="form-control" rows="4"
+              placeholder="Describe the work completed..." required></textarea>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="form-group">
@@ -1168,7 +1244,8 @@
         </button>
       </div>
       <div class="modal-body text-center">
-        <img id="modal-image" src="" alt="Issue image" style="max-width: 100%; height: auto; border-radius: var(--radius-xl);">
+        <img id="modal-image" src="" alt="Issue image"
+          style="max-width: 100%; height: auto; border-radius: var(--radius-xl);">
       </div>
     </div>
   </div>
@@ -1183,7 +1260,7 @@
       const modal = document.getElementById(`task-modal-${taskId}`);
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
-      
+
       // Initialize map if it exists
       setTimeout(() => {
         const mapEl = document.getElementById(`map-${taskId}`);
@@ -1217,7 +1294,7 @@
     function showImageModal(src) {
       const modal = document.getElementById('image-modal');
       const modalImage = document.getElementById('modal-image');
-      
+
       modalImage.src = src;
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
@@ -1227,14 +1304,14 @@
       const modal = document.getElementById('image-modal');
       modal.classList.remove('show');
       document.body.style.overflow = 'auto';
-      
+
       setTimeout(() => {
         document.getElementById('modal-image').src = '';
       }, 300);
     }
 
     // Handle escape key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
         document.querySelectorAll('.modal-backdrop.show').forEach(modal => {
           modal.classList.remove('show');
@@ -1269,13 +1346,13 @@
 
     // Form submission handling
     document.querySelectorAll('form').forEach(form => {
-      form.addEventListener('submit', function(e) {
+      form.addEventListener('submit', function (e) {
         const submitBtn = this.querySelector('button[type="submit"]');
         if (submitBtn) {
           submitBtn.disabled = true;
           const originalContent = submitBtn.innerHTML;
           submitBtn.innerHTML = '<i class="bi bi-hourglass-split" aria-hidden="true"></i> Processing...';
-          
+
           setTimeout(() => {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalContent;
@@ -1287,7 +1364,7 @@
     // Track Google Maps clicks for analytics
     function trackMapClick(action, issueId) {
       console.log(`Map ${action} clicked for issue: ${issueId}`);
-      
+
       // Optional: Send analytics data
       if (typeof gtag !== 'undefined') {
         gtag('event', 'map_interaction', {
@@ -1296,7 +1373,7 @@
           'value': issueId
         });
       }
-      
+
       // Show feedback toast
       showLocationToast(action);
     }
@@ -1308,9 +1385,9 @@
         'get_directions': 'Getting directions in Google Maps...',
         'quick_view': 'Opening map view...'
       };
-      
+
       const message = messages[action] || 'Opening map...';
-      
+
       // Create toast notification
       const toast = document.createElement('div');
       toast.className = 'toast-notification';
@@ -1320,7 +1397,7 @@
           <span>${message}</span>
         </div>
       `;
-      
+
       // Add toast styles
       toast.style.cssText = `
         position: fixed;
@@ -1340,14 +1417,14 @@
         transform: translateX(100%);
         transition: transform 0.3s ease;
       `;
-      
+
       document.body.appendChild(toast);
-      
+
       // Animate in
       setTimeout(() => {
         toast.style.transform = 'translateX(0)';
       }, 100);
-      
+
       // Remove after 3 seconds
       setTimeout(() => {
         toast.style.transform = 'translateX(100%)';
