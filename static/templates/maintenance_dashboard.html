@@ -652,6 +652,82 @@
       background: var(--gray-50);
     }
 
+    /* Google Maps Button Styles */
+    .google-maps-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      background: linear-gradient(135deg, #4285f4, #34a853);
+      color: white;
+      text-decoration: none;
+      border-radius: var(--radius-xl);
+      font-weight: 600;
+      font-size: var(--text-sm);
+      transition: var(--transition-all);
+      border: none;
+      cursor: pointer;
+    }
+
+    .google-maps-btn:hover {
+      background: linear-gradient(135deg, #3367d6, #2d8f47);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      text-decoration: none;
+      color: white;
+    }
+
+    .directions-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      background: var(--gray-100);
+      color: var(--text-primary);
+      text-decoration: none;
+      border-radius: var(--radius-xl);
+      font-weight: 600;
+      font-size: var(--text-sm);
+      transition: var(--transition-all);
+      border: 2px solid var(--gray-300);
+      cursor: pointer;
+    }
+
+    .directions-btn:hover {
+      background: var(--gray-200);
+      border-color: var(--gray-400);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .coordinates-display {
+      text-align: center;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-2);
+      padding: var(--space-2);
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+    }
+
+    .no-location-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      background: var(--gray-100);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+      border: 2px dashed var(--gray-300);
+    }
+
     @media (max-width: 768px) {
       .maintenance-hero {
         padding: var(--space-12) 0 var(--space-16);
@@ -703,6 +779,16 @@
       .btn-complete {
         justify-content: center;
       }
+      
+      .google-maps-btn,
+      .directions-btn {
+        padding: var(--space-4);
+        font-size: var(--text-base);
+      }
+      
+      .coordinates-display {
+        font-size: var(--text-xs);
+      }
     }
   </style>
 </head>
@@ -733,7 +819,7 @@
           </li>
           <li class="nav-item">
             <a href="{{ url_for('reports.rejected_reports') }}" class="nav-link">
-              <i class="bi bi-envelope-exclamation-fill" aria-hidden="true"></i>
+              <i class="bi bi-envelope-exclamation-fill" aria-hidden="true"></i> Rejections
             </a>
           </li>
           <li class="nav-item">
@@ -933,7 +1019,7 @@
   <!-- Task Detail Modals -->
   {% for issue in issues %}
   <div id="task-modal-{{ issue._id }}" class="modal-backdrop" onclick="closeModal('task-modal-{{ issue._id }}')">
-    <div class="modal" onclick="event.stopPropagation()" style="max-width: 800px;">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width: 900px;">
       <div class="modal-header">
         <h3 class="modal-title">Task Details</h3>
         <button class="btn-close" onclick="closeModal('task-modal-{{ issue._id }}')">
@@ -957,6 +1043,12 @@
                 <span class="text-sm text-secondary font-semibold">Status:</span>
                 <div>{{ issue.status.title() if issue.status else 'Pending' }}</div>
               </div>
+              {% if issue.city_street %}
+              <div>
+                <span class="text-sm text-secondary font-semibold">Address:</span>
+                <div>{{ issue.city_street }}</div>
+              </div>
+              {% endif %}
             </div>
           </div>
           {% if issue.location and issue.location.lat and issue.location.lng %}
@@ -964,9 +1056,63 @@
             <h4 class="font-semibold mb-3">Location</h4>
             <div id="map-{{ issue._id }}" style="height: 200px; border-radius: var(--radius-lg);" 
                  data-lat="{{ issue.location.lat }}" data-lng="{{ issue.location.lng }}"></div>
+            
+            <!-- Google Maps Link -->
+            <div class="mt-4 space-y-2">
+              <a href="https://www.google.com/maps/search/?api=1&query={{ issue.location.lat }},{{ issue.location.lng }}" 
+                 target="_blank" 
+                 class="google-maps-btn"
+                 onclick="trackMapClick('view_location', '{{ issue._id }}')">
+                <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                Open in Google Maps
+              </a>
+              
+              <!-- Get Directions Link -->
+              <a href="https://www.google.com/maps/dir/?api=1&destination={{ issue.location.lat }},{{ issue.location.lng }}" 
+                 target="_blank" 
+                 class="directions-btn"
+                 onclick="trackMapClick('get_directions', '{{ issue._id }}')">
+                <i class="bi bi-compass" aria-hidden="true"></i>
+                Get Directions
+              </a>
+              
+              <!-- Coordinates Display -->
+              <div class="coordinates-display">
+                <i class="bi bi-geo" aria-hidden="true"></i>
+                Coordinates: {{ "%.6f"|format(issue.location.lat) }}, {{ "%.6f"|format(issue.location.lng) }}
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div>
+            <h4 class="font-semibold mb-3">Location</h4>
+            <div class="no-location-display">
+              <div class="text-center">
+                <i class="bi bi-geo-alt text-4xl mb-2 opacity-50" aria-hidden="true"></i>
+                <p>No location coordinates available</p>
+                {% if issue.city_street %}
+                <p class="text-sm mt-2">Address: {{ issue.city_street }}</p>
+                {% endif %}
+              </div>
+            </div>
           </div>
           {% endif %}
         </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('task-modal-{{ issue._id }}')">
+          Close
+        </button>
+        {% if issue.location and issue.location.lat and issue.location.lng %}
+        <a href="https://www.google.com/maps/search/?api=1&query={{ issue.location.lat }},{{ issue.location.lng }}" 
+           target="_blank" 
+           class="btn btn-primary inline-flex items-center gap-2"
+           style="text-decoration: none; color: white;"
+           onclick="trackMapClick('quick_view', '{{ issue._id }}')">
+          <i class="bi bi-map" aria-hidden="true"></i>
+          View on Map
+        </a>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -1137,6 +1283,81 @@
         }
       });
     });
+
+    // Track Google Maps clicks for analytics
+    function trackMapClick(action, issueId) {
+      console.log(`Map ${action} clicked for issue: ${issueId}`);
+      
+      // Optional: Send analytics data
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'map_interaction', {
+          'event_category': 'maintenance_dashboard',
+          'event_label': action,
+          'value': issueId
+        });
+      }
+      
+      // Show feedback toast
+      showLocationToast(action);
+    }
+
+    // Show feedback when location links are clicked
+    function showLocationToast(action) {
+      const messages = {
+        'view_location': 'Opening location in Google Maps...',
+        'get_directions': 'Getting directions in Google Maps...',
+        'quick_view': 'Opening map view...'
+      };
+      
+      const message = messages[action] || 'Opening map...';
+      
+      // Create toast notification
+      const toast = document.createElement('div');
+      toast.className = 'toast-notification';
+      toast.innerHTML = `
+        <div class="toast-content">
+          <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      // Add toast styles
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #4285f4, #34a853);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Animate in
+      setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+      }, 100);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 300);
+      }, 3000);
+    }
   </script>
 </body>
 
