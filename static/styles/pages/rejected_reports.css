@@ -492,13 +492,4 @@
       animation-duration: 1s;
     }
 
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      .navbar-brand-liquid {
-        font-size: 22px;
-      }
-
-      .liquid-text {
-        padding: 10px 16px;
-      }
-    }
+    
