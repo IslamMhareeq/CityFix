@@ -3,9 +3,9 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - CityFix</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
+  <title>Admin Dashboard - CityFix</title>
   <meta name="description" content="Admin dashboard for managing reports and users in CityFix.">
 
   <!-- Favicon -->
@@ -21,12 +21,9 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <!-- Comment out old ones -->
-<!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}"> -->
-<!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}"> -->
-
-<!-- Add new one -->
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/consolidated-styles.css') }}">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/pages/admin_dashboard.css') }}">
 
 </head>
 
@@ -34,9 +31,7 @@
   <!-- Navigation -->
   <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="navbar-content">
-      <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid">
-        <span class="liquid-text">CityFix</span>
-      </a>
+      <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span> </a>
 
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -232,7 +227,8 @@
                 </td>
                 <td>
                   {% if issue.location %}
-                  <a href="#"onclick="showLocationModal('{{ issue._id }}',{{ issue.location.lat }},{{ issue.location.lng }})"class="nav-link">
+                  <a href="#"onclick="showLocationModal('{{ issue._id }}',{{ issue.location.lat }},{{ issue.location.lng }})"
+                    class="nav-link">
                     <i class="bi bi-geo-alt" aria-hidden="true"></i>
                     View Map
                   </a>
@@ -243,7 +239,8 @@
 
                 <td>
                   {% if issue.image_file_id %}
-                  <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue Image"class="image-thumb"onclick="showImageModal('{{url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
+                  <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue Image"
+                    class="image-thumb"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
                   {% else %}
                   <div class="no-image">
                     <i class="bi bi-image" aria-hidden="true"></i>
@@ -261,7 +258,7 @@
                 </td>
 
                 <td>
-                  <div class="admin-actions">
+                  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <form action="{{ url_for('reports.assign_issue', issue_id=issue._id) }}" method="post"
                       class="assign-form">
                       <select name="maintenance_email" class="assign-select">
@@ -424,6 +421,7 @@
         if (isVisible) visibleCount++;
       }
 
+      // Optional: Update a counter if you have one
       console.log(`Showing ${visibleCount} of ${rows.length} reports`);
     }
 
@@ -431,6 +429,7 @@
     function toggleDescription(element) {
       element.classList.toggle('description-truncated');
 
+      // Update title for accessibility
       if (element.classList.contains('description-truncated')) {
         element.title = 'Click to expand';
       } else {
@@ -449,8 +448,10 @@
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
 
+      // Focus management for accessibility
       modal.querySelector('.btn-close')?.focus();
 
+      // Add loading state
       modalImage.onload = function () {
         this.style.opacity = '1';
       };
@@ -467,6 +468,7 @@
       modal.classList.remove('show');
       document.body.style.overflow = 'auto';
 
+      // Clear the image source after animation
       setTimeout(() => {
         const modalImage = document.getElementById('modal-image');
         if (modalImage) {
@@ -486,14 +488,17 @@
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
 
+      // Update directions link
       if (directionsLink) {
         directionsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
       }
 
+      // Initialize map with a small delay to ensure modal is visible
       setTimeout(() => {
         initializeModalMap(lat, lng);
       }, 100);
 
+      // Focus management for accessibility
       modal.querySelector('.btn-close')?.focus();
     }
 
@@ -504,6 +509,7 @@
       modal.classList.remove('show');
       document.body.style.overflow = 'auto';
 
+      // Clean up map
       if (modalMap) {
         modalMap.remove();
         modalMap = null;
@@ -514,6 +520,7 @@
       const mapContainer = document.getElementById('modal-map');
       if (!mapContainer) return;
 
+      // Remove existing map if any
       if (modalMap) {
         modalMap.remove();
       }
@@ -530,6 +537,7 @@
           .bindPopup(`Issue Location<br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
           .openPopup();
 
+        // Invalidate size to ensure proper rendering
         setTimeout(() => {
           if (modalMap) {
             modalMap.invalidateSize();
@@ -543,6 +551,7 @@
 
     // Refresh data
     function refreshData() {
+      // Show loading state
       const refreshBtn = document.querySelector('[onclick="refreshData()"]');
       if (!refreshBtn) return;
 
@@ -550,6 +559,7 @@
       refreshBtn.innerHTML = '<i class="bi bi-hourglass-split" aria-hidden="true"></i><span>Refreshing...</span>';
       refreshBtn.style.pointerEvents = 'none';
 
+      // Simulate refresh (replace with actual reload)
       setTimeout(() => {
         location.reload();
       }, 1000);
@@ -563,7 +573,7 @@
       }
     });
 
-    // Initialize
+    // Initialize tooltips and other UI enhancements
     document.addEventListener('DOMContentLoaded', function () {
       // Add smooth scrolling
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -585,6 +595,7 @@
             submitBtn.innerHTML = '<i class="bi bi-hourglass-split" aria-hidden="true"></i>';
             submitBtn.disabled = true;
 
+            // Re-enable after timeout (fallback)
             setTimeout(() => {
               submitBtn.disabled = false;
               submitBtn.innerHTML = originalContent;
@@ -619,6 +630,7 @@
       // Improve search input behavior
       const searchInput = document.getElementById('search-input');
       if (searchInput) {
+        // Clear search on Escape
         searchInput.addEventListener('keydown', function (e) {
           if (e.key === 'Escape') {
             this.value = '';
@@ -627,12 +639,28 @@
           }
         });
 
+        // Debounce search input
         let searchTimeout;
         searchInput.addEventListener('input', function () {
           clearTimeout(searchTimeout);
           searchTimeout = setTimeout(filterReports, 300);
         });
       }
+
+      // Focus management for accessibility
+      const imageModal = document.getElementById('image-modal');
+      const locationModal = document.getElementById('location-modal');
+
+      [imageModal, locationModal].forEach(modal => {
+        if (modal) {
+          modal.addEventListener('transitionend', function (e) {
+            if (e.target === this && this.classList.contains('show')) {
+              const closeBtn = this.querySelector('.btn-close');
+              if (closeBtn) closeBtn.focus();
+            }
+          });
+        }
+      });
 
       // Initialize intersection observer for animations
       const observerOptions = {
@@ -649,6 +677,7 @@
         });
       }, observerOptions);
 
+      // Observe stat cards
       document.querySelectorAll('.stat-card').forEach((el, index) => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(20px)';
@@ -659,7 +688,9 @@
 
     // Auto-refresh stats every 30 seconds
     setInterval(() => {
+      // You can implement live updates here
       console.log('Auto-refreshing stats...');
+      // Example: fetch('/api/stats').then(data => updateStats(data));
     }, 30000);
 
     // Performance optimization: Lazy load images
@@ -685,10 +716,12 @@
     // Handle connection issues
     window.addEventListener('online', function () {
       console.log('Connection restored');
+      // Optional: Show notification or refresh data
     });
 
     window.addEventListener('offline', function () {
       console.log('Connection lost');
+      // Optional: Show offline notification
     });
   </script>
 </body>

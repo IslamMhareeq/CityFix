@@ -3,10 +3,9 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rejected Reports - CityFix</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
-
+  <title>Rejected Reports - CityFix</title>
   <meta name="description" content="View and manage rejected maintenance reports in CityFix.">
 
   <!-- Favicon -->
@@ -21,7 +20,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/pages/rejected_reports.css') }}">
 </head>
 
 <body>
@@ -29,9 +28,7 @@
   <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="container">
       <div class="navbar-content">
-        <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid">
-          <span class="liquid-text">CityFix</span>
-        </a>
+         <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span> </a>
         <ul class="navbar-nav">
           <li class="nav-item">
             <a href="{{ url_for('auth.dashboard') }}" class="nav-link">
@@ -140,7 +137,8 @@
                 <div class="detail-content">
                   <div class="detail-label">Submitted Photo</div>
                   <div class="detail-value">
-                    <img src="{{ url_for('reports.serve_upload', file_id=r.image_file_id) }}" alt="Issue Image"class="report-image"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=r.image_file_id) }}')">
+                    <img src="{{ url_for('reports.serve_upload', file_id=r.image_file_id) }}" alt="Issue Image"
+                      class="report-image"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=r.image_file_id) }}')">
                   </div>
                 </div>
               </div>

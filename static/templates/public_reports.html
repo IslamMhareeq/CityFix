@@ -3,10 +3,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
   <title>CityFix – All Reports</title>
-    <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
- <meta name="description" content="Browse all public infrastructure reports in your community on CityFix.">
+  <meta name="description" content="Browse all public infrastructure reports in your community on CityFix.">
 
   <!-- Favicon -->
   <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
@@ -23,7 +23,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/pages/public_reports.css') }}">
 </head>
 
 <body>

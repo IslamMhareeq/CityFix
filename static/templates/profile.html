@@ -4,9 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Profile - CityFix</title>
   <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
-
+  <title>My Profile - CityFix</title>
   <meta name="description" content="Manage your CityFix profile and account settings.">
 
   <!-- Favicon -->
@@ -21,7 +20,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/pages/profile.css') }}">
 </head>
 
 <body>
@@ -30,8 +29,7 @@
     <div class="container">
       <div class="navbar-content">
         <a href="{{ url_for('main.home') }}" class="navbar-brand">
-          <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span>
-          </a>
+         <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span> </a>
         </a>
 
         <ul class="navbar-nav">
@@ -73,6 +71,8 @@
         </div>
         <h1 class="profile-name">{{ user.name or 'User' }}</h1>
         <p class="profile-email">{{ user.email }}</p>
+
+       
       </div>
     </div>
   </section>

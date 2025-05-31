@@ -3,10 +3,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Reports – {{ user.name }}</title>  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
- <meta name="description" content="View and manage your submitted reports in CityFix.">
+  <title>My Reports – {{ user.name }}</title>
+  <meta name="description" content="View and manage your submitted reports in CityFix.">
 
   <!-- Favicon -->
   <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
@@ -20,7 +20,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/pages/user_dashboard.css') }}">
 </head>
 
 <body>

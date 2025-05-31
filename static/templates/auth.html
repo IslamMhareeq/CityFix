@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In - CityFix</title>
   <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
+  <title>Sign In - CityFix</title>
   <meta name="description" content="Sign in to CityFix to report and track infrastructure issues in your city.">
 
   <!-- Favicon -->
@@ -20,7 +20,8 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+ <link rel="stylesheet" href="{{ url_for('static', filename='styles/pages/auth.css') }}">
+
 </head>
 
 <body>
@@ -42,8 +43,7 @@
       <div class="auth-card scale-in">
         <!-- Header -->
         <div class="auth-header">
-          <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span>
-          </a>
+         <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span> </a>
           <h1 class="auth-title">Welcome to CityFix</h1>
           <p class="auth-subtitle">
             Join thousands making their cities better
