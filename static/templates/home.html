@@ -22,9 +22,12 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+ <!-- Comment out old ones -->
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}"> -->
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}"> -->
+
+<!-- Add new one -->
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/consolidated-styles.css') }}">
 
   <!-- OpenGraph Meta Tags -->
   <meta property="og:title" content="CityFix - Modern Infrastructure Reporting">
@@ -47,9 +50,6 @@
 </head>
 
 <body>
-  <!-- Skip Link for Accessibility -->
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
   <!-- Navigation -->
   <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="container">
