@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile - CityFix</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
+
   <meta name="description" content="Manage your CityFix profile and account settings.">
 
   <!-- Favicon -->
@@ -28,7 +30,8 @@
     <div class="container">
       <div class="navbar-content">
         <a href="{{ url_for('main.home') }}" class="navbar-brand">
-         <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span> </a>
+          <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span>
+          </a>
         </a>
 
         <ul class="navbar-nav">

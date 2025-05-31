@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard - CityFix</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
   <meta name="description" content="Admin dashboard for managing reports and users in CityFix.">
 
   <!-- Favicon -->
@@ -1306,8 +1307,7 @@
                 </td>
                 <td>
                   {% if issue.location %}
-                  <a href="#"
-                    onclick="showLocationModal('{{ issue._id }}',{{ issue.location.lat }},{{ issue.location.lng }})"
+                  <a href="#"onclick="showLocationModal('{{ issue._id }}',{{ issue.location.lat }},{{ issue.location.lng }})"
                     class="nav-link">
                     <i class="bi bi-geo-alt" aria-hidden="true"></i>
                     View Map
@@ -1320,8 +1320,7 @@
                 <td>
                   {% if issue.image_file_id %}
                   <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue Image"
-                    class="image-thumb"
-                    onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
+                    class="image-thumb"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
                   {% else %}
                   <div class="no-image">
                     <i class="bi bi-image" aria-hidden="true"></i>

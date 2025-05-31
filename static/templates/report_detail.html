@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Report Details - CityFix</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
+
   <meta name="description" content="View detailed information about this infrastructure report.">
 
   <!-- Favicon -->
@@ -800,8 +802,7 @@
               <div class="image-showcase">
                 {% if issue.image_file_id %}
                 <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue Image"
-                  class="main-image"
-                  onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
+                  class="main-image"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
                 {% else %}
                 <div class="no-image-placeholder">
                   <i class="bi bi-image no-image-icon" aria-hidden="true"></i>
@@ -855,8 +856,7 @@
           <!-- Status Card -->
           <div class="info-card">
             <div class="info-header">
-              <div class="info-icon"
-                style="background: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-100); color: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-600);">
+              <div class="info-icon"style="background: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-100); color: var(--{{ 'emerald' if issue.status == 'done' else 'blue' if issue.status == 'in progress' else 'orange' if issue.status == 'approved' else 'gray' }}-600);">
                 <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'approved' else 'clock' }}"
                   aria-hidden="true"></i>
               </div>

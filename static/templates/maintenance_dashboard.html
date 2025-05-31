@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Maintenance Dashboard - {{ user.name }}</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
+
   <meta name="description" content="Manage assigned maintenance tasks and work orders in CityFix.">
 
   <!-- Favicon -->
@@ -1032,8 +1034,7 @@
                   <div class="detail-label">Issue Photo</div>
                   <div class="detail-value">
                     <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue image"
-                      style="width: 100%; max-width: 200px; height: 120px; object-fit: cover; border-radius: var(--radius-lg); cursor: pointer;"
-                      onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
+                      style="width: 100%; max-width: 200px; height: 120px; object-fit: cover; border-radius: var(--radius-lg); cursor: pointer;"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
                   </div>
                 </div>
               </div>
