@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="{{ url_for('static', filename='images/web_icon.png') }}">
   <title>Admin Dashboard - CityFix</title>
   <meta name="description" content="Admin dashboard for managing reports and users in CityFix.">
@@ -29,7 +29,12 @@
 </head>
 
 <body>
-  <!-- Navigation -->
+    <!-- Back Link -->
+  <a href="{{ url_for('main.home') }}" class="back-link">
+    <i class="bi bi-arrow-left" aria-hidden="true"></i>
+    <span>Back to Home</span>
+  </a>
+  <!-- Desktop Navigation -->
   <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="navbar-content">
       <a href="{{ url_for('main.home') }}" class="navbar-brand-liquid"> <span class="liquid-text">CityFix</span> </a>
@@ -73,6 +78,42 @@
         </li>
       </ul>
     </div>
+  </nav>
+
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+    <ul class="mobile-nav-list">
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('reports.my_reports') }}" class="mobile-nav-link active">
+          <i class="mobile-nav-icon bi bi-journal-text"></i>
+          <span>My Reports</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('done_reports.done_issue') }}" class="mobile-nav-link">
+          <i class="mobile-nav-icon bi bi-check2-all"></i>
+          <span>Done reports</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('reports.report_issue') }}" class="mobile-nav-link mobile-nav-primary">
+          <i class="mobile-nav-icon bi bi-plus"></i>
+          <span>Report</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('user_roles.edit_user_roles') }}" class="mobile-nav-link">
+          <i class="mobile-nav-icon bi bi-people"></i>
+          <span>Users</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('main.profile') }}" class="mobile-nav-link">
+          <i class="mobile-nav-icon bi bi-person"></i>
+          <span>Profile</span>
+        </a>
+      </li>
+    </ul>
   </nav>
 
   <!-- Dashboard Header -->
@@ -207,7 +248,7 @@
               {% if issues %}
               {% for issue in issues %}
               <tr>
-                <td>
+                <td data-label="Reporter">
                   <div class="reporter-info">
                     <div class="reporter-avatar">
                       {{ issue.reporter_email[0]|upper }}
@@ -220,13 +261,13 @@
                     </div>
                   </div>
                 </td>
-                <td class="description-cell">
+                <td data-label="Description" class="description-cell">
                   <div class="description-text description-truncated" onclick="toggleDescription(this)"
                     title="Click to expand">
                     {{ issue.description }}
                   </div>
                 </td>
-                <td>
+                <td data-label="Location">
                   {% if issue.location %}
                   <a href="#"onclick="showLocationModal('{{ issue._id }}',{{ issue.location.lat }},{{ issue.location.lng }})"
                     class="nav-link">
@@ -238,7 +279,7 @@
                   {% endif %}
                 </td>
 
-                <td>
+                <td data-label="Image">
                   {% if issue.image_file_id %}
                   <img src="{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}" alt="Issue Image"
                     class="image-thumb"onclick="showImageModal('{{ url_for('reports.serve_upload', file_id=issue.image_file_id) }}')">
@@ -249,7 +290,7 @@
                   {% endif %}
                 </td>
 
-                <td>
+                <td data-label="Status">
                   <span
                     class="badge badge-{{ 'success' if issue.status == 'done' else 'warning' if issue.status == 'in progress' else 'info' if issue.status == 'assigned' else 'secondary' }}">
                     <i class="bi bi-{{ 'check-circle' if issue.status == 'done' else 'hourglass-split' if issue.status == 'in progress' else 'person-check' if issue.status == 'assigned' else 'clock' }}"
@@ -258,7 +299,7 @@
                   </span>
                 </td>
 
-                <td>
+                <td data-label="Actions">
                   <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <form action="{{ url_for('reports.assign_issue', issue_id=issue._id) }}" method="post"
                       class="assign-form">
@@ -422,7 +463,6 @@
         if (isVisible) visibleCount++;
       }
 
-      // Optional: Update a counter if you have one
       console.log(`Showing ${visibleCount} of ${rows.length} reports`);
     }
 
@@ -430,7 +470,6 @@
     function toggleDescription(element) {
       element.classList.toggle('description-truncated');
 
-      // Update title for accessibility
       if (element.classList.contains('description-truncated')) {
         element.title = 'Click to expand';
       } else {
@@ -449,10 +488,8 @@
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
 
-      // Focus management for accessibility
       modal.querySelector('.btn-close')?.focus();
 
-      // Add loading state
       modalImage.onload = function () {
         this.style.opacity = '1';
       };
@@ -469,7 +506,6 @@
       modal.classList.remove('show');
       document.body.style.overflow = 'auto';
 
-      // Clear the image source after animation
       setTimeout(() => {
         const modalImage = document.getElementById('modal-image');
         if (modalImage) {
@@ -489,17 +525,14 @@
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
 
-      // Update directions link
       if (directionsLink) {
         directionsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
       }
 
-      // Initialize map with a small delay to ensure modal is visible
       setTimeout(() => {
         initializeModalMap(lat, lng);
       }, 100);
 
-      // Focus management for accessibility
       modal.querySelector('.btn-close')?.focus();
     }
 
@@ -510,7 +543,6 @@
       modal.classList.remove('show');
       document.body.style.overflow = 'auto';
 
-      // Clean up map
       if (modalMap) {
         modalMap.remove();
         modalMap = null;
@@ -521,7 +553,6 @@
       const mapContainer = document.getElementById('modal-map');
       if (!mapContainer) return;
 
-      // Remove existing map if any
       if (modalMap) {
         modalMap.remove();
       }
@@ -538,7 +569,6 @@
           .bindPopup(`Issue Location<br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
           .openPopup();
 
-        // Invalidate size to ensure proper rendering
         setTimeout(() => {
           if (modalMap) {
             modalMap.invalidateSize();
@@ -552,7 +582,6 @@
 
     // Refresh data
     function refreshData() {
-      // Show loading state
       const refreshBtn = document.querySelector('[onclick="refreshData()"]');
       if (!refreshBtn) return;
 
@@ -560,7 +589,6 @@
       refreshBtn.innerHTML = '<i class="bi bi-hourglass-split" aria-hidden="true"></i><span>Refreshing...</span>';
       refreshBtn.style.pointerEvents = 'none';
 
-      // Simulate refresh (replace with actual reload)
       setTimeout(() => {
         location.reload();
       }, 1000);
@@ -574,7 +602,7 @@
       }
     });
 
-    // Initialize tooltips and other UI enhancements
+    // Initialize everything when DOM is loaded
     document.addEventListener('DOMContentLoaded', function () {
       // Add smooth scrolling
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -596,71 +624,12 @@
             submitBtn.innerHTML = '<i class="bi bi-hourglass-split" aria-hidden="true"></i>';
             submitBtn.disabled = true;
 
-            // Re-enable after timeout (fallback)
             setTimeout(() => {
               submitBtn.disabled = false;
               submitBtn.innerHTML = originalContent;
             }, 5000);
           }
         });
-      });
-
-      // Add click-outside-to-close for modals
-      document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-        backdrop.addEventListener('click', function (e) {
-          if (e.target === this) {
-            if (this.id === 'image-modal') {
-              closeImageModal();
-            } else if (this.id === 'location-modal') {
-              closeLocationModal();
-            }
-          }
-        });
-      });
-
-      // Add keyboard navigation for table
-      const table = document.getElementById('reports-table');
-      if (table) {
-        table.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' && e.target.classList.contains('image-thumb')) {
-            e.target.click();
-          }
-        });
-      }
-
-      // Improve search input behavior
-      const searchInput = document.getElementById('search-input');
-      if (searchInput) {
-        // Clear search on Escape
-        searchInput.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape') {
-            this.value = '';
-            filterReports();
-            this.blur();
-          }
-        });
-
-        // Debounce search input
-        let searchTimeout;
-        searchInput.addEventListener('input', function () {
-          clearTimeout(searchTimeout);
-          searchTimeout = setTimeout(filterReports, 300);
-        });
-      }
-
-      // Focus management for accessibility
-      const imageModal = document.getElementById('image-modal');
-      const locationModal = document.getElementById('location-modal');
-
-      [imageModal, locationModal].forEach(modal => {
-        if (modal) {
-          modal.addEventListener('transitionend', function (e) {
-            if (e.target === this && this.classList.contains('show')) {
-              const closeBtn = this.querySelector('.btn-close');
-              if (closeBtn) closeBtn.focus();
-            }
-          });
-        }
       });
 
       // Initialize intersection observer for animations
@@ -685,44 +654,6 @@
         el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
         observer.observe(el);
       });
-    });
-
-    // Auto-refresh stats every 30 seconds
-    setInterval(() => {
-      // You can implement live updates here
-      console.log('Auto-refreshing stats...');
-      // Example: fetch('/api/stats').then(data => updateStats(data));
-    }, 30000);
-
-    // Performance optimization: Lazy load images
-    if ('IntersectionObserver' in window) {
-      const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target;
-            if (img.dataset.src) {
-              img.src = img.dataset.src;
-              img.classList.remove('loading');
-              observer.unobserve(img);
-            }
-          }
-        });
-      });
-
-      document.querySelectorAll('img[data-src]').forEach(img => {
-        imageObserver.observe(img);
-      });
-    }
-
-    // Handle connection issues
-    window.addEventListener('online', function () {
-      console.log('Connection restored');
-      // Optional: Show notification or refresh data
-    });
-
-    window.addEventListener('offline', function () {
-      console.log('Connection lost');
-      // Optional: Show offline notification
     });
   </script>
 </body>
