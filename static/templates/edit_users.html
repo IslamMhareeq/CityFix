@@ -26,8 +26,12 @@
 </head>
 
 <body>
-  <!-- Navigation -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
+   <!-- Back Link -->
+  <a href="{{ url_for('main.home') }}" class="back-link">
+    <i class="bi bi-arrow-left" aria-hidden="true"></i>
+    <span>Back to Home</span>
+  </a>
+  <!-- Desktop Navigation -->  <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="container">
       <div class="navbar-content">
         <a href="{{ url_for('main.home') }}" class="navbar-brand">
@@ -68,6 +72,42 @@
         </ul>
       </div>
     </div>
+  </nav>
+
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+    <ul class="mobile-nav-list">
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('auth.dashboard') }}" class="mobile-nav-link">
+          <i class="mobile-nav-icon bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('done_reports.done_issue') }}" class="mobile-nav-link">
+          <i class="mobile-nav-icon bi bi-check2-all"></i>
+          <span>Done</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('reports.report_issue') }}" class="mobile-nav-link mobile-nav-primary">
+          <i class="mobile-nav-icon bi bi-plus"></i>
+          <span>Report</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('user_roles.edit_user_roles') }}" class="mobile-nav-link active">
+          <i class="mobile-nav-icon bi bi-people"></i>
+          <span>Users</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a href="{{ url_for('main.profile') }}" class="mobile-nav-link">
+          <i class="mobile-nav-icon bi bi-person"></i>
+          <span>Profile</span>
+        </a>
+      </li>
+    </ul>
   </nav>
 
   <!-- Users Hero -->
@@ -135,7 +175,7 @@
             <tbody>
               {% for user in users %}
               <tr>
-                <td>
+                <td data-label="User">
                   <div class="user-info">
                     <div class="user-avatar">
                       {{ user.name[0]|upper if user.name else user.email[0]|upper }}
@@ -146,14 +186,14 @@
                     </div>
                   </div>
                 </td>
-                <td>
+                <td data-label="Current Role">
                   <span class="role-badge role-{{ user.role }}">
                     <i class="bi bi-{{ 'person' if user.role == 'user' else 'shield-check' if user.role == 'admin' else 'tools' }}"
                       aria-hidden="true"></i>
                     {{ user.role|title }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Actions">
                   <div class="actions-cell">
                     <!-- Role Update -->
                     <div class="action-row">
